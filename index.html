@@ -36,7 +36,7 @@
         </div>
         
         <div class="flex items-center space-x-2">
-            <!-- Кнопка переключения языков -->
+            <!-- Переключатель языков -->
             <button onclick="toggleLanguage()" id="langBtn" class="border border-emerald-600 text-baytaq font-bold px-2.5 py-1 rounded-full text-xs shadow-sm hover:bg-baytaq-light transition">
                 ҚАЗ
             </button>
@@ -69,6 +69,46 @@
                 <span class="text-2xl block mb-1">💚</span>
                 <span id="donateTitle" class="font-bold text-sm text-gray-800 block">Взнос / QR</span>
                 <span id="donateSub" class="text-[11px] text-gray-500">Поддержать филиал</span>
+            </div>
+        </div>
+
+        <!-- Раздел Новости СКО -->
+        <div class="space-y-3">
+            <div class="flex justify-between items-center">
+                <h2 id="newsHeader" class="font-bold text-sm text-gray-900">Новости филиала</h2>
+                <a href="#" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline">Все новости →</a>
+            </div>
+
+            <!-- Новость 1 -->
+            <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3">
+                <div class="w-20 h-20 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">
+                    🌱
+                </div>
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <span id="newsTag1" class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">Экология СКО</span>
+                        <h3 id="newsTitle1" class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">
+                            Активисты «Байтақ» провели экологический мониторинг русла реки Есиль
+                        </h3>
+                    </div>
+                    <span id="newsDate1" class="text-[10px] text-gray-400">Сегодня, 10:30</span>
+                </div>
+            </div>
+
+            <!-- Новость 2 -->
+            <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3">
+                <div class="w-20 h-20 bg-amber-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">
+                    🏛️
+                </div>
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <span id="newsTag2" class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded font-semibold">Прием граждан</span>
+                        <h3 id="newsTitle2" class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">
+                            Общественная приемная приняла обращения жителей Петропавловска по вопросам ЖКХ
+                        </h3>
+                    </div>
+                    <span id="newsDate2" class="text-[10px] text-gray-400">Вчера, 16:45</span>
+                </div>
             </div>
         </div>
 
@@ -121,10 +161,13 @@
             <span class="text-lg">🏠</span><span id="navHome">Главная</span>
         </a>
         <a href="#" class="flex flex-col items-center hover:text-baytaq">
-            <span class="text-lg">👥</span><span id="navTeam">Команда</span>
+            <span class="text-lg">📰</span><span id="navNews">Новости</span>
         </a>
         <a href="#" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">📩</span><span id="navRec">Приемная</span>
+        </a>
+        <a href="#" class="flex flex-col items-center hover:text-baytaq">
+            <span class="text-lg">👥</span><span id="navTeam">Команда</span>
         </a>
         <a href="#" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">💚</span><span id="navDonate">Взнос</span>
@@ -145,6 +188,14 @@
                 receptionSub: "Подать обращение",
                 donateTitle: "Взнос / QR",
                 donateSub: "Поддержать филиал",
+                newsHeader: "Новости филиала",
+                allNewsLink: "Все новости →",
+                newsTag1: "Экология СКО",
+                newsTitle1: "Активисты «Байтақ» провели экологический мониторинг русла реки Есиль",
+                newsDate1: "Сегодня, 10:30",
+                newsTag2: "Прием граждан",
+                newsTitle2: "Общественная приемная приняла обращения жителей Петропавловска по вопросам ЖКХ",
+                newsDate2: "Вчера, 16:45",
                 teamHeader: "Руководство филиала",
                 leaderTitle: "Председатель филиала",
                 leaderLoc: "СКО, г. Петропавловск",
@@ -154,8 +205,9 @@
                 labelRegion: "Район / Город СКО",
                 submitBtn: "Отправить анкету",
                 navHome: "Главная",
-                navTeam: "Команда",
+                navNews: "Новости",
                 navRec: "Приемная",
+                navTeam: "Команда",
                 navDonate: "Взнос"
             },
             kk: {
@@ -168,6 +220,14 @@
                 receptionSub: "Өтініш жіберу",
                 donateTitle: "Жарна / QR",
                 donateSub: "Филиалды қолдау",
+                newsHeader: "Филиал жаңалықтары",
+                allNewsLink: "Барлық жаңалықтар →",
+                newsTag1: "СҚО Экологиясы",
+                newsTitle1: "«Байтақ» белсенділері Есіл өзенінің арнасына экологиялық мониторинг жүргізді",
+                newsDate1: "Бүгін, 10:30",
+                newsTag2: "Азаматтарды қабылдау",
+                newsTitle2: "Қоғамдық қабылдау бөлмесі Петропавл тұрғындарының ТҮКШ сұрақтары бойынша өтініштерін қабылдады",
+                newsDate2: "Кеше, 16:45",
                 teamHeader: "Филиал басшылығы",
                 leaderTitle: "Филиал төрағасы",
                 leaderLoc: "СҚО, Петропавл қ.",
@@ -177,8 +237,9 @@
                 labelRegion: "СҚО ауданы / қаласы",
                 submitBtn: "Сауалнаманы жіберу",
                 navHome: "Басты",
-                navTeam: "Команда",
+                navNews: "Жаңалықтар",
                 navRec: "Қабылдау",
+                navTeam: "Команда",
                 navDonate: "Жарна"
             }
         };
