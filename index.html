@@ -84,7 +84,7 @@
         <div id="newsSection" class="space-y-3">
             <div class="flex justify-between items-center">
                 <h2 id="newsHeader" class="font-bold text-sm text-gray-900">Новости филиала</h2>
-                <button onclick="openArchiveModal(true)" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline bg-emerald-50 px-2 py-1 rounded-lg">Все новости (Архив) →</button>
+                <button onclick="openArchiveModal(true)" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline bg-emerald-50 px-2.5 py-1 rounded-lg">Все новости (Архив) →</button>
             </div>
             <div id="newsContainer" class="space-y-3">
                 <div class="bg-white rounded-xl p-4 text-center border border-gray-100 text-xs text-gray-400">
@@ -112,30 +112,34 @@
 
     </main>
 
-    <!-- Модальное окно: Полный архив новостей с календарем -->
+    <!-- Модальное окно: Архив новостей с тегами и календарем -->
     <div id="archiveModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 id="archiveTitle" class="font-bold text-base text-baytaq-dark">Архив новостей</h3>
                 <button onclick="openArchiveModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
 
-            <!-- Фильтр по дате (Календарь) -->
-            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 flex items-center justify-between space-x-2">
-                <div>
-                    <label id="lblFilterDate" class="text-[11px] font-bold text-emerald-900 block">Фильтр по дате:</label>
-                    <span id="lblFilterSub" class="text-[10px] text-gray-500">Выберите день или сбросьте</span>
+            <!-- Фильтры по английским тегам и дате -->
+            <div class="space-y-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                <div class="flex space-x-1 overflow-x-auto pb-1 text-[11px] no-scrollbar">
+                    <button onclick="filterByTag('all')" id="tag-btn-all" class="tag-filter bg-baytaq text-white px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition">Все</button>
+                    <button onclick="filterByTag('#news')" id="tag-btn-news" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#news</button>
+                    <button onclick="filterByTag('#jkh')" id="tag-btn-jkh" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#jkh</button>
+                    <button onclick="filterByTag('#eco')" id="tag-btn-eco" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#eco</button>
+                    <button onclick="filterByTag('#announcement')" id="tag-btn-announcement" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#announcement</button>
                 </div>
-                <div class="flex space-x-1.5">
-                    <input type="date" id="newsDateFilter" onchange="filterNewsByDate()" class="border border-emerald-300 rounded-lg p-1.5 text-xs bg-white text-gray-700 outline-none">
-                    <button onclick="resetNewsFilter()" class="bg-white border border-gray-300 text-gray-600 px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-100">Сброс</button>
+                <div class="flex items-center justify-between pt-1 border-t border-emerald-200">
+                    <span id="lblFilterDate" class="text-[10px] font-bold text-emerald-900">Календарь:</span>
+                    <div class="flex space-x-1.5">
+                        <input type="date" id="newsDateFilter" onchange="applyFilters()" class="border border-emerald-300 rounded-lg p-1 text-xs bg-white text-gray-700 outline-none">
+                        <button onclick="resetFilters()" class="bg-white border border-gray-300 text-gray-600 px-2 py-1 rounded-lg text-xs font-semibold">Сброс</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Список архива -->
-            <div id="archiveContainer" class="space-y-3">
-                <!-- Заполняется динамически -->
-            </div>
+            <div id="archiveContainer" class="space-y-3"></div>
         </div>
     </div>
 
@@ -148,33 +152,24 @@
             </div>
             <form id="joinForm" onsubmit="submitJoinForm(event)" class="space-y-3">
                 <div>
-                    <label id="labelFio" class="text-xs font-semibold text-gray-600">ФИО полностью</label>
-                    <input type="text" id="inputFio" required class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none">
+                    <label class="text-xs font-semibold text-gray-600">ФИО полностью</label>
+                    <input type="text" id="inputFio" required class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label id="labelPhone" class="text-xs font-semibold text-gray-600">Телефон (WhatsApp)</label>
-                        <input type="tel" id="inputPhone" placeholder="+7 (700) 000-00-00" required class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none">
+                        <label class="text-xs font-semibold text-gray-600">Телефон (WhatsApp)</label>
+                        <input type="tel" id="inputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
                     </div>
                     <div>
-                        <label id="labelIin" class="text-xs font-semibold text-gray-600">ИИН (необязательно)</label>
-                        <input type="text" id="inputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none">
+                        <label class="text-xs font-semibold text-gray-600">ИИН</label>
+                        <input type="text" id="inputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
                     </div>
                 </div>
                 <div>
-                    <label id="labelRegion" class="text-xs font-semibold text-gray-600">Район / Город СКО</label>
-                    <select id="inputRegion" required class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none bg-white"></select>
+                    <label class="text-xs font-semibold text-gray-600">Район / Город СКО</label>
+                    <select id="inputRegion" required class="w-full border rounded-lg p-2.5 text-sm mt-1 bg-white outline-none"></select>
                 </div>
-                <div class="flex items-start space-x-2 pt-1">
-                    <input type="checkbox" id="joinConsent" required class="mt-0.5 rounded border-gray-300 text-baytaq focus:ring-baytaq">
-                    <label for="joinConsent" class="text-[11px] text-gray-500 leading-tight">
-                        <span id="consentText">Согласен на обработку персональных данных и с условиями</span> 
-                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" id="joinOfferLink" class="text-baytaq underline font-semibold">Оферты</a>
-                    </label>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">
-                    Отправить анкету
-                </button>
+                <button type="submit" class="w-full bg-baytaq text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">Отправить анкету</button>
             </form>
         </div>
     </div>
@@ -187,97 +182,57 @@
                 <button onclick="toggleRecModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
             <div class="space-y-1">
-                <label id="recLabelMap" class="text-xs font-semibold text-gray-600">Укажите место на карте СКО (кликните):</label>
+                <label class="text-xs font-semibold text-gray-600">Укажите место на карте СКО (кликните):</label>
                 <div id="map" class="w-full h-40 rounded-xl border border-gray-200"></div>
-                <p id="mapCoordsText" class="text-[10px] text-emerald-700 font-medium">📍 Метка установлена</p>
             </div>
             <form id="recForm" onsubmit="submitRecForm(event)" class="space-y-2.5">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label id="recLabelFio" class="text-[11px] font-semibold text-gray-600">ФИО полностью</label>
-                        <input type="text" id="recInputFio" required class="w-full border rounded-lg p-2 text-xs mt-0.5 outline-none">
+                        <label class="text-[11px] font-semibold text-gray-600">ФИО полностью</label>
+                        <input type="text" id="recInputFio" required class="w-full border rounded-lg p-2 text-xs outline-none">
                     </div>
                     <div>
-                        <label id="recLabelPhone" class="text-[11px] font-semibold text-gray-600">Телефон (WhatsApp)</label>
-                        <input type="tel" id="recInputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2 text-xs mt-0.5 outline-none">
+                        <label class="text-[11px] font-semibold text-gray-600">Телефон (WhatsApp)</label>
+                        <input type="tel" id="recInputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2 text-xs outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label id="recLabelRegion" class="text-[11px] font-semibold text-gray-600">Район / Город</label>
-                        <select id="recInputRegion" required class="w-full border rounded-lg p-2 text-xs mt-0.5 bg-white outline-none"></select>
+                        <label class="text-[11px] font-semibold text-gray-600">Район / Город</label>
+                        <select id="recInputRegion" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
                     </div>
                     <div>
-                        <label id="recLabelIin" class="text-[11px] font-semibold text-gray-600">ИИН (для eOtinish)</label>
-                        <input type="text" id="recInputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2 text-xs mt-0.5 outline-none">
+                        <label class="text-[11px] font-semibold text-gray-600">ИИН</label>
+                        <input type="text" id="recInputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2 text-xs outline-none">
                     </div>
                 </div>
                 <div>
-                    <label id="recLabelCategory" class="text-[11px] font-semibold text-gray-600">Категория вопроса</label>
-                    <select id="recInputCategory" onchange="updateSubcategories()" required class="w-full border rounded-lg p-2 text-xs mt-0.5 bg-white outline-none"></select>
+                    <label class="text-[11px] font-semibold text-gray-600">Категория вопроса</label>
+                    <select id="recInputCategory" onchange="updateSubcategories()" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
                 </div>
                 <div>
-                    <label id="recLabelSubCategory" class="text-[11px] font-semibold text-gray-600">Подкатегория</label>
-                    <select id="recInputSubCategory" required class="w-full border rounded-lg p-2 text-xs mt-0.5 bg-white outline-none"></select>
+                    <label class="text-[11px] font-semibold text-gray-600">Подкатегория</label>
+                    <select id="recInputSubCategory" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
                 </div>
                 <div>
-                    <label id="recLabelText" class="text-[11px] font-semibold text-gray-600">Суть обращения</label>
-                    <textarea id="recInputText" rows="2" required placeholder="Опишите проблему..." class="w-full border rounded-lg p-2 text-xs mt-0.5 outline-none"></textarea>
+                    <label class="text-[11px] font-semibold text-gray-600">Суть обращения</label>
+                    <textarea id="recInputText" rows="2" required placeholder="Опишите проблему..." class="w-full border rounded-lg p-2 text-xs outline-none"></textarea>
                 </div>
-                <div>
-                    <label id="recLabelFile" class="text-[11px] font-semibold text-gray-600">📷 Прикрепить фото или видео:</label>
-                    <div class="flex items-center space-x-2 mt-0.5">
-                        <label for="recInputFile" class="cursor-pointer bg-baytaq-light text-baytaq border border-emerald-300 font-semibold text-xs px-3 py-1.5 rounded-lg">
-                            <span id="recBtnFileText">Выберите файл</span>
-                        </label>
-                        <span id="recFileName" class="text-[10px] text-gray-400 truncate max-w-[180px]">Файл не выбран</span>
-                        <input type="file" id="recInputFile" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(this)">
-                    </div>
-                </div>
-                <div class="flex items-start space-x-2">
-                    <input type="checkbox" id="recConsent" required class="mt-0.5 rounded border-gray-300 text-baytaq">
-                    <label for="recConsent" class="text-[10px] text-gray-500 leading-tight">
-                        <span id="recConsentText">Согласен на обработку данных</span> 
-                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" id="recOfferLink" class="text-baytaq underline font-semibold">Оферты</a>
-                    </label>
-                </div>
-                <button type="submit" id="recSubmitBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-2.5 rounded-xl font-bold text-xs shadow transition">
-                    Отправить обращение
-                </button>
+                <button type="submit" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs shadow">Отправить обращение</button>
             </form>
         </div>
     </div>
 
     <!-- Модальное окно Взносы -->
     <div id="donateModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[88vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="donateModalTitle" class="font-bold text-base text-baytaq-dark">Банковские реквизиты</h3>
+                <h3 class="font-bold text-base text-baytaq-dark">Банковские реквизиты</h3>
                 <button onclick="toggleDonateModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
-            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 space-y-3">
-                <div>
-                    <span class="text-[10px] font-semibold text-gray-500 uppercase block">Получатель:</span>
-                    <span class="text-xs font-bold text-gray-800 block">СКО Ф-Л ОО "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ"</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <span class="text-[10px] font-semibold text-gray-500 uppercase block">БИН:</span>
-                        <span class="text-xs font-mono font-bold text-gray-800">230141041716</span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] font-semibold text-gray-500 uppercase block">Банк:</span>
-                        <span class="text-xs font-semibold text-gray-800">АО «Народный Банк»</span>
-                    </div>
-                </div>
-                <div>
-                    <span class="text-[10px] font-semibold text-gray-500 uppercase block">IBAN:</span>
-                    <div class="flex items-center justify-between bg-white border border-emerald-200 rounded-lg p-2 mt-1">
-                        <span class="text-xs font-mono font-bold text-baytaq-dark select-all">KZ41601A251004530111</span>
-                        <button onclick="copyToClipboard('KZ41601A251004530111', 'ibanCopyStatus')" class="bg-baytaq text-white text-[10px] font-bold px-2 py-1 rounded">Копировать</button>
-                    </div>
-                    <span id="ibanCopyStatus" class="text-[10px] text-emerald-700 hidden mt-1">✓ Скопировано!</span>
-                </div>
+            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 space-y-2">
+                <span class="text-xs font-bold text-gray-800 block">СКО Ф-Л ОО "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ"</span>
+                <span class="text-xs font-mono font-bold text-baytaq-dark select-all block">IBAN: KZ41601A251004530111 (БИН: 230141041716)</span>
             </div>
             <button onclick="toggleDonateModal(false)" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs">Понятно</button>
         </div>
@@ -288,14 +243,13 @@
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-start border-b pb-3">
                 <div>
-                    <span class="text-[10px] bg-emerald-50 text-baytaq px-2 py-0.5 rounded font-semibold uppercase">@sqo_baytaq</span>
+                    <span id="newsModalTag" class="text-[10px] bg-emerald-100 text-baytaq px-2 py-0.5 rounded font-bold uppercase">#news</span>
                     <p id="newsModalDate" class="text-[10px] text-gray-400 mt-1"></p>
                 </div>
                 <button onclick="toggleNewsModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
             <div id="newsModalBody" class="text-xs text-gray-700 leading-relaxed whitespace-pre-line space-y-2"></div>
             <div class="border-t pt-3 space-y-2">
-                <p id="shareTitle" class="text-[11px] font-bold text-gray-600">📢 Поделиться новостью:</p>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="shareNewsViaWhatsApp()" class="bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold">💬 WhatsApp</button>
                     <button onclick="shareNewsNative()" class="bg-baytaq text-white py-2 rounded-xl text-xs font-bold">📲 Поделиться</button>
@@ -304,35 +258,13 @@
         </div>
     </div>
 
-    <!-- Модальное окно Оферта -->
-    <div id="offerModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-3 max-h-[80vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 id="offerTitle" class="font-bold text-sm text-baytaq-dark">Оферта</h3>
-                <button onclick="toggleOfferModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
-            </div>
-            <div id="offerBody" class="text-xs text-gray-600 space-y-2 leading-relaxed"></div>
-            <button onclick="toggleOfferModal(false)" class="w-full bg-baytaq text-white py-2 rounded-xl text-xs font-bold">Понятно</button>
-        </div>
-    </div>
-
     <!-- Нижняя навигация PWA -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 text-[11px] text-gray-500 z-30">
-        <a href="#" class="flex flex-col items-center text-baytaq font-bold">
-            <span class="text-lg">🏠</span><span id="navHome">Главная</span>
-        </a>
-        <a href="#newsSection" class="flex flex-col items-center hover:text-baytaq">
-            <span class="text-lg">📰</span><span id="navNews">Новости</span>
-        </a>
-        <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq">
-            <span class="text-lg">🗺️</span><span id="navRec">Приемная</span>
-        </a>
-        <a href="#teamSection" class="flex flex-col items-center hover:text-baytaq">
-            <span class="text-lg">👥</span><span id="navTeam">Команда</span>
-        </a>
-        <a href="javascript:void(0)" onclick="toggleDonateModal(true)" class="flex flex-col items-center hover:text-baytaq">
-            <span class="text-lg">💚</span><span id="navDonate">Взнос</span>
-        </a>
+        <a href="#" class="flex flex-col items-center text-baytaq font-bold"><span class="text-lg">🏠</span>Главная</a>
+        <a href="#newsSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">📰</span>Новости</a>
+        <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">🗺️</span>Приемная</a>
+        <a href="#teamSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">👥</span>Команда</a>
+        <a href="javascript:void(0)" onclick="toggleDonateModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">💚</span>Взнос</a>
     </nav>
 
     <script>
@@ -340,87 +272,17 @@
         let rawNewsData = [];
         let filteredNewsData = [];
         let currentNewsIndex = null;
+        let activeTagFilter = 'all';
         let activeTeamTab = 'all';
         let map, marker;
         let selectedLat = 54.8667;
         let selectedLng = 69.1500;
 
-        const BOT_TOKEN = '8908146010:AAGwJy1bJAC1fmHwwTHBFg3PCfG7XdfuxaU';
-        const CHAT_ID = '-5511507884';
-        const TOPIC_JOIN = 2;
-        const TOPIC_RECEPTION = 4;
-
         const teamMembers = [
-            {
-                id: 1, roleCategory: 'leadership',
-                fio: { ru: 'Серік Батыржан Бақытжанұлы', kk: 'Серік Батыржан Бақытжанұлы' },
-                title: { ru: 'И.о. председателя филиала', kk: 'Филиал төрағасының м.а.' },
-                loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' },
-                badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: true
-            },
-            {
-                id: 2, roleCategory: 'leadership',
-                fio: { ru: 'Джусупбеков Рустам Маратович', kk: 'Джусупбеков Рустам Маратович' },
-                title: { ru: 'Исполнительный секретарь филиала', kk: 'Филиалдың атқарушы хатшысы' },
-                loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' },
-                badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: false
-            },
-            {
-                id: 3, roleCategory: 'politburo',
-                fio: { ru: 'Төлеген Жапар Бәриұлы', kk: 'Төлеген Жапар Бәриұлы' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 4, roleCategory: 'politburo',
-                fio: { ru: 'Кускенов Самрат Дулатович', kk: 'Кускенов Самрат Дулатович' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 5, roleCategory: 'politburo',
-                fio: { ru: 'Шугаипов Ринат Шамшетденович', kk: 'Шугаипов Ринат Шамшетденович' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 6, roleCategory: 'politburo',
-                fio: { ru: 'Какимов Ардак Жианкезович', kk: 'Какимов Ардак Жианкезович' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 7, roleCategory: 'politburo',
-                fio: { ru: 'Назарбекова Гульсана Амандыковна', kk: 'Назарбекова Гульсана Амандыковна' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 8, roleCategory: 'politburo',
-                fio: { ru: 'Жолболдыұлы Самат', kk: 'Жолболдыұлы Самат' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 9, roleCategory: 'politburo',
-                fio: { ru: 'Есмуканов Бауыржан Рашевич', kk: 'Есмуканов Бауыржан Рашевич' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            },
-            {
-                id: 10, roleCategory: 'politburo',
-                fio: { ru: 'Кайырбеков Руслан Серикбаевич', kk: 'Кайырбеков Руслан Серикбаевич' },
-                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
-                loc: { ru: 'СКО', kk: 'СҚО' },
-                badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false
-            }
+            { id: 1, roleCategory: 'leadership', fio: { ru: 'Серік Батыржан Бақытжанұлы', kk: 'Серік Батыржан Бақытжанұлы' }, title: { ru: 'И.о. председателя филиала', kk: 'Филиал төрағасының м.а.' }, loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' }, badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: true },
+            { id: 2, roleCategory: 'leadership', fio: { ru: 'Джусупбеков Рустам Маратович', kk: 'Джусупбеков Рустам Маратович' }, title: { ru: 'Исполнительный секретарь филиала', kk: 'Филиалдың атқарушы хатшысы' }, loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' }, badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: false },
+            { id: 3, roleCategory: 'politburo', fio: { ru: 'Төлеген Жапар Бәриұлы', kk: 'Төлеген Жапар Бәриұлы' }, title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' }, loc: { ru: 'СКО', kk: 'СҚО' }, badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false },
+            { id: 4, roleCategory: 'politburo', fio: { ru: 'Кускенов Самрат Дулатович', kk: 'Кускенов Самрат Дулатович' }, title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' }, loc: { ru: 'СКО', kk: 'СҚО' }, badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false }
         ];
 
         const regionsData = {
@@ -430,42 +292,17 @@
 
         const categoriesStructured = {
             ru: [
-                { cat: "🌿 Экология и водоемы", subs: ["Стихийная свалка", "Загрязнение водоемов (Есиль и др.)", "Вырубка деревьев", "Загрязнение воздуха / Смог"] },
-                { cat: "🏙️ Инфраструктура и ЖКХ", subs: ["ТЭЦ-2 / Отопление", "Порывы водопровода / Канализация", "Отключение света / Освещение"] },
-                { cat: "🛣️ Дороги и Благоустройство", subs: ["Ямы на дорогах", "Отсутствие тротуаров", "Открытые люки", "Невывоз ТБО / мусора"] },
-                { cat: "⚖️ Другое / Защита прав", subs: ["Социальные вопросы", "Правовая консультация", "Прочее обращение"] }
+                { cat: "🌿 Экология и водоемы", subs: ["Стихийная свалка", "Загрязнение водоемов", "Вырубка деревьев", "Загрязнение воздуха"] },
+                { cat: "🏙️ Инфраструктура и ЖКХ", subs: ["ТЭЦ-2 / Отопление", "Порывы водопровода", "Отключение света"] },
+                { cat: "🛣️ Дороги и Благоустройство", subs: ["Ямы на дорогах", "Отсутствие тротуаров", "Невывоз ТБО"] },
+                { cat: "⚖️ Другое / Защита прав", subs: ["Социальные вопросы", "Правовая консультация", "Прочее"] }
             ],
             kk: [
-                { cat: "🌿 Экология және су ресурстары", subs: ["Заңсыз қоқыс орны", "Су айдындарының ластануы", "Ағаштарды отау", "Ауаның ластануы / Смог"] },
-                { cat: "🏙️ ТҮКШ және инфрақұрылым", subs: ["ЖЭО-2 / Жылу мәселесі", "Су құбыры жарылуы / Канализация", "Жарықтың өшуі / Көше жарығы"] },
-                { cat: "🛣️ Жолдар мен көркейту", subs: ["Жолдағы шұңқырлар", "Тротуарлардың болмауы", "Ашық люктер", "Қоқысты шығармау"] },
+                { cat: "🌿 Экология және су ресурстары", subs: ["Заңсыз қоқыс орны", "Су айдындарының ластануы", "Ағаштарды отау", "Ауаның ластануы"] },
+                { cat: "🏙️ ТҮКШ және инфрақұрылым", subs: ["ЖЭО-2 / Жылу мәселесі", "Су құбыры жарылуы", "Жарықтың өшуі"] },
+                { cat: "🛣️ Жолдар мен көркейту", subs: ["Жолдағы шұңқырлар", "Тротуарлардың болмауы", "Қоқысты шығармау"] },
                 { cat: "⚖️ Басқа / Құқық қорғау", subs: ["Әлеуметтік сұрақтар", "Құқықтық кеңес", "Басқа өтініш"] }
             ]
-        };
-
-        const translations = {
-            ru: {
-                langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить", bannerTitle: "СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ",
-                bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"", bannerBtn: "Присоединиться к партии",
-                receptionTitle: "Карта / Приемная", receptionSub: "Подать обращение", donateTitle: "Взнос / Реквизиты",
-                donateSub: "Поддержать филиал", newsHeader: "Новости филиала", teamHeader: "Команда филиала",
-                modalTitle: "Заявка на вступление", labelFio: "ФИО полностью", labelPhone: "Телефон (WhatsApp)",
-                labelIin: "ИИН (необязательно)", labelRegion: "Район / Город СКО", submitBtn: "Отправить анкету",
-                recModalTitle: "Общественная приемная СКО", navHome: "Главная", navNews: "Новости",
-                navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос", archiveTitle: "Архив всех новостей",
-                lblFilterDate: "Фильтр по дате:", lblFilterSub: "Выберите день или сбросьте"
-            },
-            kk: {
-                langBtn: "РУС", joinHeaderBtn: "+ Қосылу", bannerTitle: "СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫ",
-                bannerSub: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ", bannerBtn: "Партияға қосылу",
-                receptionTitle: "Карта / Қабылдау", receptionSub: "Өтініш жіберу", donateTitle: "Жарна / Деректемелер",
-                donateSub: "Филиалды қолдау", newsHeader: "Филиал жаңалықтары", teamHeader: "Филиал командасы",
-                modalTitle: "Партияға қосылу өтініші", labelFio: "Толық Т.А.Ә.", labelPhone: "Телефон нөмірі (WhatsApp)",
-                labelIin: "ЖСН (міндетті емес)", labelRegion: "СҚО ауданы / қаласы", submitBtn: "Сауалнаманы жіберу",
-                recModalTitle: "СҚО қоғамдық қабылдау бөлмесі", navHome: "Басты", navNews: "Жаңалықтар",
-                navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна", archiveTitle: "Барлық жаңалықтар мұрағаты",
-                lblFilterDate: "Күн бойынша сүзгі:", lblFilterSub: "Күнді таңдаңыз немесе тазартыңыз"
-            }
         };
 
         function initMap() {
@@ -475,19 +312,18 @@
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
                 marker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(map);
                 map.on('click', e => { selectedLat = e.latlng.lat; selectedLng = e.latlng.lng; marker.setLatLng([selectedLat, selectedLng]); });
-                marker.on('dragend', () => { let pos = marker.getLatLng(); selectedLat = pos.lat; selectedLng = pos.lng; });
             }, 100);
         }
 
         function renderSelects() {
             ['inputRegion', 'recInputRegion'].forEach(id => {
-                const selectEl = document.getElementById(id);
-                if (!selectEl) return;
+                const el = document.getElementById(id);
+                if (!el) return;
                 let html = '';
                 regionsData[currentLang].forEach((item, index) => {
                     html += index === 0 ? `<option value="" disabled selected>${item}</option>` : `<option value="${item}">${item}</option>`;
                 });
-                selectEl.innerHTML = html;
+                el.innerHTML = html;
             });
             const catSelect = document.getElementById('recInputCategory');
             if (catSelect) {
@@ -502,90 +338,53 @@
             const catIdx = document.getElementById('recInputCategory').value;
             const subSelect = document.getElementById('recInputSubCategory');
             if (!subSelect) return;
-            if (catIdx === "" || catIdx === null) {
-                subSelect.innerHTML = `<option value="" disabled selected>${currentLang === 'ru' ? 'Сначала выберите категорию' : 'Алдымен санатты таңдаңыз'}</option>`;
-                return;
-            }
-            let html = `<option value="" disabled selected>${currentLang === 'ru' ? 'Выберите подкатегорию...' : 'Ішкі санатты таңдаңыз...'}</option>`;
+            if (catIdx === "") { subSelect.innerHTML = `<option value="" disabled selected>Сначала выберите категорию</option>`; return; }
+            let html = `<option value="" disabled selected>Выберите подкатегорию...</option>`;
             categoriesStructured[currentLang][catIdx].subs.forEach(s => { html += `<option value="${s}">${s}</option>`; });
             subSelect.innerHTML = html;
         }
 
-        function handleFileSelect(input) {
-            const el = document.getElementById('recFileName');
-            if (input.files && input.files.length > 0) {
-                el.innerText = input.files[0].name;
-                el.className = "text-[10px] text-baytaq-dark font-semibold truncate max-w-[180px]";
-            }
-        }
-
-        function copyToClipboard(text, statusElId) {
-            navigator.clipboard.writeText(text).then(() => {
-                const el = document.getElementById(statusElId);
-                if (el) { el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 2500); }
-            });
-        }
-
         function renderTeam() {
-            const teamContainer = document.getElementById('teamList');
-            if (!teamContainer) return;
+            const container = document.getElementById('teamList');
+            if (!container) return;
             const filtered = activeTeamTab === 'all' ? teamMembers : teamMembers.filter(m => m.roleCategory === activeTeamTab);
             let html = '';
             filtered.forEach(m => {
                 const initials = m.fio[currentLang].split(' ').map(n => n[0]).slice(0, 2).join('');
-                const bgGradient = m.isLeader ? 'bg-gradient-to-tr from-baytaq to-emerald-600 text-white' : 'bg-emerald-100 text-baytaq-dark font-bold';
+                const bg = m.isLeader ? 'bg-gradient-to-tr from-baytaq to-emerald-600 text-white' : 'bg-emerald-100 text-baytaq-dark font-bold';
                 html += `
-                    <div class="flex items-center space-x-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white transition">
-                        <div class="w-12 h-12 rounded-full ${bgGradient} flex-shrink-0 flex items-center justify-center text-sm font-bold">${initials}</div>
+                    <div class="flex items-center space-x-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+                        <div class="w-12 h-12 rounded-full ${bg} flex-shrink-0 flex items-center justify-center text-sm font-bold">${initials}</div>
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center space-x-1.5">
-                                <h3 class="font-bold text-xs text-gray-900 truncate">${m.fio[currentLang]}</h3>
-                                <span class="text-[9px] bg-emerald-100 text-baytaq px-1.5 py-0.2 rounded font-semibold">${m.badge[currentLang]}</span>
-                            </div>
-                            <p class="text-[11px] text-baytaq-dark font-medium mt-0.5">${m.title[currentLang]}</p>
-                            <p class="text-[10px] text-gray-400 mt-0.5">📍 ${m.loc[currentLang]}</p>
+                            <h3 class="font-bold text-xs text-gray-900 truncate">${m.fio[currentLang]}</h3>
+                            <p class="text-[11px] text-baytaq-dark font-medium">${m.title[currentLang]}</p>
                         </div>
                     </div>
                 `;
             });
-            teamContainer.innerHTML = html;
+            container.innerHTML = html;
         }
 
         function switchTeamTab(tabKey) {
             activeTeamTab = tabKey;
-            document.querySelectorAll('.team-tab').forEach(b => { b.className = "team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition"; });
+            document.querySelectorAll('.team-tab').forEach(b => b.className = "team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition");
             document.getElementById(`tab-${tabKey}`).className = "team-tab bg-baytaq text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition";
             renderTeam();
         }
 
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'kk' : 'ru';
-            const t = translations[currentLang];
-            for (let key in t) { const el = document.getElementById(key); if (el) el.innerText = t[key]; }
-            document.getElementById('tab-all').innerText = currentLang === 'ru' ? 'Все' : 'Барлығы';
-            document.getElementById('tab-leadership').innerText = currentLang === 'ru' ? 'Руководство' : 'Басшылық';
-            document.getElementById('tab-politburo').innerText = currentLang === 'ru' ? 'Политбюро' : 'Саяси бюро';
-            document.getElementById('tab-ppo').innerText = currentLang === 'ru' ? 'ППО / Районы' : 'БПҰ / Аудандар';
-            renderOfferText(); renderSelects(); renderNews(); renderArchiveList(); renderTeam();
-        }
-
-        function renderOfferText() {
-            document.getElementById('offerBody').innerHTML = currentLang === 'ru' ? 
-                `<p><b>1. Общие положения:</b> Официальный портал СКО филиала партии «Байтақ».</p><p><b>2. Сбор данных:</b> Заполняя формы, вы соглашаетесь на обработку данных согласно закону РК.</p>` :
-                `<p><b>1. Жалпы ережелер:</b> «Байтақ» партиясы СҚО филиалының ресми порталы.</p><p><b>2. Деректер:</b> Формаларды толтыру арқылы сіз деректерді өңдеуге келісесіз.</p>`;
+            document.getElementById('langBtn').innerText = currentLang === 'ru' ? 'ҚАЗ' : 'РУС';
+            renderSelects(); renderNews(); renderArchiveList(); renderTeam();
         }
 
         function toggleJoinModal(show) { document.getElementById('joinModal').classList.toggle('hidden', !show); }
-        function toggleRecModal(show) { document.getElementById('recModal').classList.toggle('hidden', !show); if(show){initMap();} }
+        function toggleRecModal(show) { document.getElementById('recModal').classList.toggle('hidden', !show); if(show) initMap(); }
         function toggleDonateModal(show) { document.getElementById('donateModal').classList.toggle('hidden', !show); }
-        function toggleOfferModal(show) { document.getElementById('offerModal').classList.toggle('hidden', !show); }
         function toggleNewsModal(show) { document.getElementById('newsModal').classList.toggle('hidden', !show); }
-        function openArchiveModal(show) { document.getElementById('archiveModal').classList.toggle('hidden', !show); if(show) { renderArchiveList(); } }
+        function openArchiveModal(show) { document.getElementById('archiveModal').classList.toggle('hidden', !show); if(show) applyFilters(); }
 
         async function fetchTelegramNews() {
-            const fallbackKk = '[ДАТА: 2026-10-02]\n«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде';
-            const fallbackRu = '[ДАТА: 2026-10-02]\nСКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями';
-
             try {
                 const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://t.me/s/sqo_baytaq'));
                 const data = await res.json();
@@ -600,15 +399,22 @@
                         messages.forEach(msg => {
                             let fullText = msg.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]*>?/gm, '');
                             
-                            // Проверка кастомной даты задним числом: [ДАТА: ГГГГ-ММ-ДД]
+                            // Парсинг даты: [ДАТА: ГГГГ-ММ-ДД]
                             let pubDate = new Date().toISOString();
                             const dateMatch = fullText.match(/\[ДАТА:\s*(\d{4}-\d{2}-\d{2})\]/);
                             if (dateMatch) {
                                 pubDate = new Date(dateMatch[1]).toISOString();
-                                fullText = fullText.replace(dateMatch[0], '').trim(); // убираем маркер из текста
+                                fullText = fullText.replace(dateMatch[0], '').trim();
                             } else {
                                 const dateEl = msg.closest('.tgme_widget_message').querySelector('.tgme_widget_message_date time');
                                 if (dateEl) pubDate = dateEl.getAttribute('datetime');
+                            }
+
+                            // Автоматический поиск английского хештега в тексте (#news, #jkh, #eco, #announcement)
+                            let tag = '#news';
+                            const hashtagMatch = fullText.match(/#(news|jkh|eco|announcement)\b/i);
+                            if (hashtagMatch) {
+                                tag = hashtagMatch[0].toLowerCase();
                             }
 
                             let parts = fullText.split(/─── 🌿 ───|---|───/);
@@ -618,13 +424,13 @@
                             rawNewsData.push({
                                 description: fullText,
                                 pubDate: pubDate,
+                                tag: tag,
                                 parsedText: { kk: textKk, ru: textRu }
                             });
                         });
 
-                        // Сортировка: самые свежие (и задним числом) сверху
                         rawNewsData.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                        filteredNewsData = [...rawNewsData];
+                        applyFilters();
                         renderNews();
                         return;
                     }
@@ -632,11 +438,12 @@
                 throw new Error('Empty');
             } catch (err) {
                 rawNewsData = [{
-                    description: `${fallbackKk}\n─── 🌿 ───\n${fallbackRu}`,
-                    pubDate: new Date('2026-10-02').toISOString(),
-                    parsedText: { kk: fallbackKk.replace(/\[ДАТА:.*?\]\n/, ''), ru: fallbackRu.replace(/\[ДАТА:.*?\]\n/, '') }
+                    description: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news\n─── 🌿 ───\nСҚО филиалы PWA-сайт әзірлеуде #news',
+                    pubDate: new Date().toISOString(),
+                    tag: '#news',
+                    parsedText: { kk: 'СҚО филиалы PWA-сайт әзірлеуде #news', ru: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news' }
                 }];
-                filteredNewsData = [...rawNewsData];
+                applyFilters();
                 renderNews();
             }
         }
@@ -646,20 +453,21 @@
             if (!rawNewsData || rawNewsData.length === 0) return;
             
             let html = '';
-            // На главной выводим топ-4 свежие новости
             rawNewsData.slice(0, 4).forEach((item, index) => {
                 let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
                 let title = displayText.split('\n')[0] || displayText.slice(0, 80);
 
                 html += `
-                    <div onclick="openNewsModalMain(${index})" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer active:scale-95 transition">
+                    <div onclick="openNewsModal(${index})" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer transition">
                         <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
                         <div class="flex flex-col justify-between overflow-hidden">
                             <div>
-                                <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-[9px] bg-emerald-100 text-baytaq px-1.5 py-0.5 rounded font-bold">${item.tag}</span>
+                                    <span class="text-[9px] text-gray-400">• ${new Date(item.pubDate).toLocaleDateString()}</span>
+                                </div>
                                 <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${title}</h3>
                             </div>
-                            <span class="text-[10px] text-gray-400 mt-1">${new Date(item.pubDate).toLocaleDateString()}</span>
                         </div>
                     </div>
                 `;
@@ -667,10 +475,35 @@
             container.innerHTML = html;
         }
 
+        function filterByTag(tag) {
+            activeTagFilter = tag;
+            document.querySelectorAll('.tag-filter').forEach(b => {
+                b.className = "tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition";
+            });
+            document.getElementById(`tag-btn-${tag.replace('#', '')}`).className = "tag-filter bg-baytaq text-white px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition";
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const dateVal = document.getElementById('newsDateFilter').value;
+            filteredNewsData = rawNewsData.filter(item => {
+                let matchTag = (activeTagFilter === 'all' || item.tag.toLowerCase() === activeTagFilter.toLowerCase());
+                let matchDate = (!dateVal || item.pubDate.startsWith(dateVal));
+                return matchTag && matchDate;
+            });
+            renderArchiveList();
+        }
+
+        function resetFilters() {
+            document.getElementById('newsDateFilter').value = '';
+            activeTagFilter = 'all';
+            filterByTag('all');
+        }
+
         function renderArchiveList() {
             const container = document.getElementById('archiveContainer');
             if (!filteredNewsData || filteredNewsData.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">Заттар табылмады / Новостей за эту дату нет</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">Новости не найдены / Жаңалықтар табылмады</div>`;
                 return;
             }
 
@@ -680,11 +513,12 @@
                 let title = displayText.split('\n')[0] || displayText.slice(0, 80);
 
                 html += `
-                    <div onclick="openNewsModalArchive(${index})" class="bg-gray-50 rounded-xl p-3 border border-gray-200 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer transition">
+                    <div onclick="openArchiveModalItem(${index})" class="bg-gray-50 rounded-xl p-3 border border-gray-200 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer transition">
                         <div class="w-12 h-12 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-xl">🌱</div>
                         <div class="flex flex-col justify-between overflow-hidden">
                             <div>
-                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2">${title}</h3>
+                                <span class="text-[9px] bg-emerald-100 text-baytaq px-1.5 py-0.2 rounded font-bold">${item.tag}</span>
+                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-0.5">${title}</h3>
                             </div>
                             <span class="text-[10px] text-emerald-700 font-semibold mt-1">📅 ${new Date(item.pubDate).toLocaleDateString()}</span>
                         </div>
@@ -694,63 +528,34 @@
             container.innerHTML = html;
         }
 
-        function filterNewsByDate() {
-            const val = document.getElementById('newsDateFilter').value;
-            if (!val) { resetNewsFilter(); return; }
-            filteredNewsData = rawNewsData.filter(item => item.pubDate.startsWith(val));
-            renderArchiveList();
-        }
-
-        function resetNewsFilter() {
-            document.getElementById('newsDateFilter').value = '';
-            filteredNewsData = [...rawNewsData];
-            renderArchiveList();
-        }
-
-        function openNewsModalMain(index) {
-            currentNewsIndex = index;
+        function openNewsModal(index) {
             const item = rawNewsData[index];
             if (!item) return;
-            let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
+            document.getElementById('newsModalTag').innerText = item.tag;
             document.getElementById('newsModalDate').innerText = new Date(item.pubDate).toLocaleDateString();
-            document.getElementById('newsModalBody').innerText = displayText;
+            document.getElementById('newsModalBody').innerText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
             toggleNewsModal(true);
         }
 
-        function openNewsModalArchive(index) {
+        function openArchiveModalItem(index) {
             const item = filteredNewsData[index];
             if (!item) return;
-            let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
+            document.getElementById('newsModalTag').innerText = item.tag;
             document.getElementById('newsModalDate').innerText = new Date(item.pubDate).toLocaleDateString();
-            document.getElementById('newsModalBody').innerText = displayText;
+            document.getElementById('newsModalBody').innerText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
             toggleNewsModal(true);
         }
 
         function shareNewsViaWhatsApp() {
-            if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
-            const item = rawNewsData[currentNewsIndex];
-            let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
-            let title = displayText.split('\n')[0] || 'SQO BAYTAQ';
-            window.open(`https://wa.me/?text=` + encodeURIComponent(`📰 *${title}*\n\n${window.location.href}`), '_blank');
+            window.open(`https://wa.me/?text=` + encodeURIComponent(`📰 Читать в PWA партии Байтақ: ${window.location.href}`), '_blank');
         }
-
         function shareNewsNative() {
             if (navigator.share) { navigator.share({ title: 'SQO BAYTAQ', url: window.location.href }).catch(() => {}); } else { shareNewsViaWhatsApp(); }
         }
 
-        async function submitJoinForm(e) {
-            e.preventDefault();
-            alert(currentLang === 'ru' ? 'Заявка отправлена!' : 'Өтініш жіберілді!');
-            toggleJoinModal(false);
-        }
+        async function submitJoinForm(e) { e.preventDefault(); alert('Заявка отправлена!'); toggleJoinModal(false); }
+        async function submitRecForm(e) { e.preventDefault(); alert('Обращение принято!'); toggleRecModal(false); }
 
-        async function submitRecForm(e) {
-            e.preventDefault();
-            alert(currentLang === 'ru' ? 'Обращение принято!' : 'Өтініш қабылданды!');
-            toggleRecModal(false);
-        }
-
-        renderOfferText();
         renderSelects();
         renderTeam();
         fetchTelegramNews();
