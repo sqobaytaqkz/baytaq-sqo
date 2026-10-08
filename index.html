@@ -641,4 +641,56 @@
 
         function renderNews() {
             const container = document.getElementById('newsContainer');
-            if (!rawNewsData ||
+            if (!rawNewsData || rawNewsData.length === 0) return;
+            let html = '';
+            rawNewsData.slice(0, 3).forEach(item => {
+                let fullText = item.description.replace(/<[^>]*>?/gm, '');
+                let parts = fullText.split(/─── 🌿 ───|---|───/);
+                let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
+                let title = displayText.split('\n')[0] || displayText.slice(0, 80);
+
+                html += `
+                    <a href="${item.link}" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
+                        <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
+                        <div class="flex flex-col justify-between overflow-hidden">
+                            <div>
+                                <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
+                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${title}</h3>
+                            </div>
+                            <span class="text-[10px] text-gray-400 mt-1">${new Date(item.pubDate).toLocaleDateString()}</span>
+                        </div>
+                    </a>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderFallbackNews() {
+            const container = document.getElementById('newsContainer');
+            const isRu = currentLang === 'ru';
+            container.innerHTML = `
+                <a href="https://t.me/sqo_baytaq" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
+                    <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
+                    <div class="flex flex-col justify-between overflow-hidden">
+                        <div>
+                            <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
+                            <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">
+                                ${isRu ? 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями' : '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде'}
+                            </h3>
+                        </div>
+                        <span class="text-[10px] text-gray-400 mt-1">Официально</span>
+                    </div>
+                </a>
+            `;
+        }
+
+        renderOfferText();
+        renderSelects();
+        fetchTelegramNews();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>
