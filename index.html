@@ -129,7 +129,7 @@
                     <input type="checkbox" id="joinConsent" required class="mt-0.5 rounded border-gray-300 text-baytaq focus:ring-baytaq">
                     <label for="joinConsent" class="text-[11px] text-gray-500 leading-tight">
                         <span id="consentText">Согласен на обработку персональных данных и с условиями</span> 
-                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" class="text-baytaq underline font-semibold">Оферты</a>
+                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" id="joinOfferLink" class="text-baytaq underline font-semibold">Оферты</a>
                     </label>
                 </div>
                 <button type="submit" id="submitBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">
@@ -192,17 +192,23 @@
                     <textarea id="recInputText" rows="2" required placeholder="Опишите проблему..." class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none"></textarea>
                 </div>
 
-                <!-- Поле прикрепления фото/видео -->
+                <!-- Кастомный переводимый блок выбора файла -->
                 <div>
                     <label id="recLabelFile" class="text-[11px] font-semibold text-gray-600">📷 Прикрепить фото или видео (необязательно):</label>
-                    <input type="file" id="recInputFile" accept="image/*,video/*" class="w-full border rounded-lg p-1.5 text-xs mt-0.5 bg-gray-50 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-baytaq-light file:text-baytaq hover:file:bg-emerald-100">
+                    <div class="flex items-center space-x-2 mt-0.5">
+                        <label for="recInputFile" class="cursor-pointer bg-baytaq-light text-baytaq border border-emerald-300 font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition">
+                            <span id="recBtnFileText">Выберите файл</span>
+                        </label>
+                        <span id="recFileName" class="text-[10px] text-gray-400 truncate max-w-[180px]">Файл не выбран</span>
+                        <input type="file" id="recInputFile" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(this)">
+                    </div>
                 </div>
 
                 <div class="flex items-start space-x-2">
                     <input type="checkbox" id="recConsent" required class="mt-0.5 rounded border-gray-300 text-baytaq focus:ring-baytaq">
                     <label for="recConsent" class="text-[10px] text-gray-500 leading-tight">
                         <span id="recConsentText">Согласен на обработку данных и с условиями</span> 
-                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" class="text-baytaq underline font-semibold">Оферты</a>
+                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" id="recOfferLink" class="text-baytaq underline font-semibold">Оферты</a>
                     </label>
                 </div>
 
@@ -325,7 +331,8 @@
                 recLabelRegion: "Район / Город", recLabelIin: "ИИН (необязательно)", recLabelCategory: "Категория вопроса",
                 recLabelSubCategory: "Подкатегория", recLabelText: "Суть обращения", recLabelFile: "📷 Прикрепить фото или видео:", recSubmitBtn: "Отправить обращение на карту",
                 consentText: "Согласен на обработку персональных данных и с условиями", recConsentText: "Согласен на обработку данных и с условиями",
-                navHome: "Главная", navNews: "Новости", navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос"
+                navHome: "Главная", navNews: "Новости", navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос",
+                recBtnFileText: "Выберите файл", recFileNameDefault: "Файл не выбран", offerCloseBtn: "Понятно", offerTitle: "Пользовательское соглашение и Оферта"
             },
             kk: {
                 langBtn: "РУС", joinHeaderBtn: "+ Қосылу", bannerTitle: "Солтүстік Қазақстан филиалы",
@@ -338,7 +345,8 @@
                 recLabelRegion: "СҚО ауданы / қаласы", recLabelIin: "ЖСН (міндетті емес)", recLabelCategory: "Сұрақ санаты",
                 recLabelSubCategory: "Ішкі санат", recLabelText: "Өтініштің мәні", recLabelFile: "📷 Фото немесе видео тіркеу:", recSubmitBtn: "Өтінішті картаға жіберу",
                 consentText: "Деректерді өңдеуге және шарттарға келісемін", recConsentText: "Деректерді өңдеуге және шарттарға келісемін",
-                navHome: "Басты", navNews: "Жаңалықтар", navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна"
+                navHome: "Басты", navNews: "Жаңалықтар", navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна",
+                recBtnFileText: "Файлды таңдаңыз", recFileNameDefault: "Файл таңдалмады", offerCloseBtn: "Түсінікті", offerTitle: "Пайдаланушы келісімі және Оферта"
             }
         };
 
@@ -409,6 +417,19 @@
             subSelect.innerHTML = html;
         }
 
+        function handleFileSelect(input) {
+            const fileNameEl = document.getElementById('recFileName');
+            if (input.files && input.files.length > 0) {
+                fileNameEl.innerText = input.files[0].name;
+                fileNameEl.classList.remove('text-gray-400');
+                fileNameEl.classList.add('text-baytaq-dark', 'font-semibold');
+            } else {
+                fileNameEl.innerText = translations[currentLang].recFileNameDefault;
+                fileNameEl.classList.remove('text-baytaq-dark', 'font-semibold');
+                fileNameEl.classList.add('text-gray-400');
+            }
+        }
+
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'kk' : 'ru';
             const t = translations[currentLang];
@@ -419,6 +440,16 @@
             }
 
             document.getElementById('recInputText').placeholder = currentLang === 'ru' ? 'Опишите проблему...' : 'Мәселені сипаттаңыз...';
+            document.getElementById('recInputIin').placeholder = currentLang === 'ru' ? 'Необязательно' : 'Міндетті емес';
+            
+            document.getElementById('joinOfferLink').innerText = currentLang === 'ru' ? 'Оферты' : 'Оферта';
+            document.getElementById('recOfferLink').innerText = currentLang === 'ru' ? 'Оферты' : 'Оферта';
+
+            const fileInput = document.getElementById('recInputFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                document.getElementById('recFileName').innerText = t.recFileNameDefault;
+            }
+
             renderOfferText();
             renderSelects();
             renderNews();
@@ -457,7 +488,6 @@
             document.getElementById('offerModal').classList.toggle('hidden', !show);
         }
 
-        // Очистка номера для WhatsApp ссылки (оставляет только цифры)
         function cleanPhoneNumber(phone) {
             let cleaned = phone.replace(/\D/g, '');
             if (cleaned.startsWith('8')) cleaned = '7' + cleaned.slice(1);
@@ -518,7 +548,7 @@
             const fio = document.getElementById('recInputFio').value;
             const phone = document.getElementById('recInputPhone').value;
             const region = document.getElementById('recInputRegion').value;
-            const iin = document.getElementById('recInputIin').value || 'Не указан';
+            const iin = document.getElementById('recInputIin').value || (currentLang === 'ru' ? 'Не указан' : 'Көрсетілмеген');
             const catIdx = document.getElementById('recInputCategory').value;
             const catName = categoriesStructured[currentLang][catIdx].cat;
             const subCatName = document.getElementById('recInputSubCategory').value;
@@ -545,7 +575,6 @@
             try {
                 let response;
                 if (fileInput.files.length > 0) {
-                    // Если есть фото/видео — отправляем мультипарт документом
                     const file = fileInput.files[0];
                     const formData = new FormData();
                     formData.append('chat_id', CHAT_ID);
@@ -564,7 +593,6 @@
                         response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: 'POST', body: formData });
                     }
                 } else {
-                    // Если нет файлов — обычный текст
                     response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -580,13 +608,16 @@
                 if (response.ok) {
                     alert((currentLang === 'ru' ? 'Обращение принято! Номер: ' : 'Өтініш қабылданды! Нөмірі: ') + reqId);
                     document.getElementById('recForm').reset();
+                    document.getElementById('recFileName').innerText = translations[currentLang].recFileNameDefault;
+                    document.getElementById('recFileName').classList.remove('text-baytaq-dark', 'font-semibold');
+                    document.getElementById('recFileName').classList.add('text-gray-400');
                     renderSelects();
                     toggleRecModal(false);
                 } else {
-                    alert('Ошибка при отправке файла');
+                    alert('Ошибка отправки');
                 }
             } catch (err) {
-                alert('Ошибка отправки');
+                alert('Ошибка сети');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = translations[currentLang].recSubmitBtn;
@@ -610,56 +641,4 @@
 
         function renderNews() {
             const container = document.getElementById('newsContainer');
-            if (!rawNewsData || rawNewsData.length === 0) return;
-            let html = '';
-            rawNewsData.slice(0, 3).forEach(item => {
-                let fullText = item.description.replace(/<[^>]*>?/gm, '');
-                let parts = fullText.split(/─── 🌿 ───|---|───/);
-                let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
-                let title = displayText.split('\n')[0] || displayText.slice(0, 80);
-
-                html += `
-                    <a href="${item.link}" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
-                        <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
-                        <div class="flex flex-col justify-between overflow-hidden">
-                            <div>
-                                <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
-                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${title}</h3>
-                            </div>
-                            <span class="text-[10px] text-gray-400 mt-1">${new Date(item.pubDate).toLocaleDateString()}</span>
-                        </div>
-                    </a>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function renderFallbackNews() {
-            const container = document.getElementById('newsContainer');
-            const isRu = currentLang === 'ru';
-            container.innerHTML = `
-                <a href="https://t.me/sqo_baytaq" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
-                    <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
-                    <div class="flex flex-col justify-between overflow-hidden">
-                        <div>
-                            <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
-                            <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">
-                                ${isRu ? 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями' : '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде'}
-                            </h3>
-                        </div>
-                        <span class="text-[10px] text-gray-400 mt-1">Официально</span>
-                    </div>
-                </a>
-            `;
-        }
-
-        renderOfferText();
-        renderSelects();
-        fetchTelegramNews();
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
-    </script>
-</body>
-</html>
+            if (!rawNewsData ||
