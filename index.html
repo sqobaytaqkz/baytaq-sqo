@@ -7,6 +7,11 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00875A">
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet.js Интерактивная карта -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -40,7 +45,7 @@
             <button onclick="toggleLanguage()" id="langBtn" class="border border-emerald-600 text-baytaq font-bold px-2.5 py-1 rounded-full text-xs shadow-sm hover:bg-baytaq-light transition">
                 ҚАЗ
             </button>
-            <button onclick="toggleModal(true)" id="joinHeaderBtn" class="bg-baytaq hover:bg-baytaq-dark text-white font-bold px-3.5 py-1.5 rounded-full text-xs shadow-sm transition">
+            <button onclick="toggleJoinModal(true)" id="joinHeaderBtn" class="bg-baytaq hover:bg-baytaq-dark text-white font-bold px-3.5 py-1.5 rounded-full text-xs shadow-sm transition">
                 + Вступить
             </button>
         </div>
@@ -53,19 +58,19 @@
         <div class="bg-baytaq-light border border-emerald-100 rounded-2xl p-5 text-center relative overflow-hidden">
             <h1 id="bannerTitle" class="text-xl font-bold text-baytaq-dark mb-1">Северо-Казахстанский филиал</h1>
             <p id="bannerSub" class="text-xs text-gray-600 mb-4">Партия зеленых «Байтақ»</p>
-            <button onclick="toggleModal(true)" id="bannerBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition">
+            <button onclick="toggleJoinModal(true)" id="bannerBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition">
                 Присоединиться к партии
             </button>
         </div>
 
         <!-- Быстрый доступ -->
         <div class="grid grid-cols-2 gap-3">
-            <div onclick="alert('Раздел приемной')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition">
-                <span class="text-2xl block mb-1">📝</span>
-                <span id="receptionTitle" class="font-bold text-sm text-gray-800 block">Приемная</span>
+            <div onclick="toggleRecModal(true)" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition hover:border-baytaq">
+                <span class="text-2xl block mb-1">🗺️</span>
+                <span id="receptionTitle" class="font-bold text-sm text-gray-800 block">Карта / Приемная</span>
                 <span id="receptionSub" class="text-[11px] text-gray-500">Подать обращение</span>
             </div>
-            <div onclick="alert('Раздел взносов')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition">
+            <div onclick="alert('Раздел взносов')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition hover:border-baytaq">
                 <span class="text-2xl block mb-1">💚</span>
                 <span id="donateTitle" class="font-bold text-sm text-gray-800 block">Взнос / QR</span>
                 <span id="donateSub" class="text-[11px] text-gray-500">Поддержать филиал</span>
@@ -108,9 +113,9 @@
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 id="modalTitle" class="font-bold text-lg text-baytaq-dark">Заявка на вступление</h3>
-                <button onclick="toggleModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
+                <button onclick="toggleJoinModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
-            <form id="joinForm" onsubmit="submitForm(event)" class="space-y-3">
+            <form id="joinForm" onsubmit="submitJoinForm(event)" class="space-y-3">
                 <div>
                     <label id="labelFio" class="text-xs font-semibold text-gray-600">ФИО полностью</label>
                     <input type="text" id="inputFio" required class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none">
@@ -121,14 +126,103 @@
                 </div>
                 <div>
                     <label id="labelRegion" class="text-xs font-semibold text-gray-600">Район / Город СКО</label>
-                    <select id="inputRegion" required class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none bg-white">
-                        <!-- Варианты заполняются через JavaScript -->
-                    </select>
+                    <select id="inputRegion" required class="w-full border rounded-lg p-2.5 text-sm mt-1 focus:ring-2 focus:ring-baytaq outline-none bg-white"></select>
+                </div>
+                <div class="flex items-start space-x-2 pt-1">
+                    <input type="checkbox" id="joinConsent" required class="mt-0.5 rounded border-gray-300 text-baytaq focus:ring-baytaq">
+                    <label for="joinConsent" class="text-[11px] text-gray-500 leading-tight">
+                        <span id="consentText">Согласен на обработку персональных данных и с условиями</span> 
+                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" class="text-baytaq underline font-semibold">Оферты</a>
+                    </label>
                 </div>
                 <button type="submit" id="submitBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">
                     Отправить анкету
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно «Приемная / Карта обращений» -->
+    <div id="recModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 id="recModalTitle" class="font-bold text-base text-baytaq-dark">Общественная приемная</h3>
+                <button onclick="toggleRecModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
+            </div>
+
+            <!-- Блок карты Leaflet -->
+            <div class="space-y-1">
+                <label id="recLabelMap" class="text-xs font-semibold text-gray-600">Укажите место на карте СКО (кликните):</label>
+                <div id="map" class="w-full h-44 rounded-xl border border-gray-200"></div>
+                <p id="mapCoordsText" class="text-[10px] text-emerald-700 font-medium">📍 Метка установлена (нажмите на карту для изменения)</p>
+            </div>
+
+            <form id="recForm" onsubmit="submitRecForm(event)" class="space-y-2.5">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="recLabelFio" class="text-[11px] font-semibold text-gray-600">ФИО полностью</label>
+                        <input type="text" id="recInputFio" required class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none">
+                    </div>
+                    <div>
+                        <label id="recLabelPhone" class="text-[11px] font-semibold text-gray-600">Телефон</label>
+                        <input type="tel" id="recInputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="recLabelRegion" class="text-[11px] font-semibold text-gray-600">Район / Город</label>
+                        <select id="recInputRegion" required class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none bg-white"></select>
+                    </div>
+                    <div>
+                        <label id="recLabelIin" class="text-[11px] font-semibold text-gray-600">ИИН (для eOtinish)</label>
+                        <input type="text" id="recInputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label id="recLabelCategory" class="text-[11px] font-semibold text-gray-600">Категория вопроса</label>
+                    <select id="recInputCategory" onchange="updateSubcategories()" required class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none bg-white"></select>
+                </div>
+
+                <div>
+                    <label id="recLabelSubCategory" class="text-[11px] font-semibold text-gray-600">Подкатегория</label>
+                    <select id="recInputSubCategory" required class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none bg-white"></select>
+                </div>
+
+                <div>
+                    <label id="recLabelText" class="text-[11px] font-semibold text-gray-600">Суть обращения</label>
+                    <textarea id="recInputText" rows="2" required placeholder="Опишите проблему..." class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none"></textarea>
+                </div>
+
+                <div class="flex items-start space-x-2">
+                    <input type="checkbox" id="recConsent" required class="mt-0.5 rounded border-gray-300 text-baytaq focus:ring-baytaq">
+                    <label for="recConsent" class="text-[10px] text-gray-500 leading-tight">
+                        <span id="recConsentText">Согласен на обработку данных и с условиями</span> 
+                        <a href="javascript:void(0)" onclick="toggleOfferModal(true)" class="text-baytaq underline font-semibold">Оферты</a>
+                    </label>
+                </div>
+
+                <button type="submit" id="recSubmitBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-2.5 rounded-xl font-bold text-xs shadow transition">
+                    Отправить обращение
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно «Публичная Оферта» -->
+    <div id="offerModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-3 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 id="offerTitle" class="font-bold text-sm text-baytaq-dark">Пользовательское соглашение и Оферта</h3>
+                <button onclick="toggleOfferModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="offerBody" class="text-xs text-gray-600 space-y-2 leading-relaxed">
+                <!-- Заполняется динамически -->
+            </div>
+            <button onclick="toggleOfferModal(false)" id="offerCloseBtn" class="w-full bg-baytaq text-white py-2 rounded-xl text-xs font-bold">
+                Понятно
+            </button>
         </div>
     </div>
 
@@ -140,8 +234,8 @@
         <a href="https://t.me/sqo_baytaq" target="_blank" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">📰</span><span id="navNews">Новости</span>
         </a>
-        <a href="#" class="flex flex-col items-center hover:text-baytaq">
-            <span class="text-lg">📩</span><span id="navRec">Приемная</span>
+        <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq">
+            <span class="text-lg">🗺️</span><span id="navRec">Приемная</span>
         </a>
         <a href="#" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">👥</span><span id="navTeam">Команда</span>
@@ -154,118 +248,165 @@
     <script>
         let currentLang = 'ru';
         let rawNewsData = [];
+        let map, marker;
+        let selectedLat = 54.8667;
+        let selectedLng = 69.1500;
 
-        // Данные Telegram-бота
         const BOT_TOKEN = '8908146010:AAGwJy1bJAC1fmHwwTHBFg3PCfG7XdfuxaU';
         const CHAT_ID = '-5511507884';
+        
+        // Номера тем из вашего Telegram
+        const TOPIC_JOIN = 2;      // Тема «Заявки в партию»
+        const TOPIC_RECEPTION = 4; // Тема «Приемная (Карта)»
 
-        // Список районов СКО
         const regionsData = {
             ru: [
-                "Выберите район / город...",
-                "Город Петропавловск",
-                "Айыртауский район",
-                "Акжарский район",
-                "Аккайынский район",
-                "Есильский район",
-                "Жамбылский район",
-                "Район Магжана Жумабаева",
-                "Кызылжарский район",
-                "Мамлютский район",
-                "Район имени Габита Мусрепова",
-                "Тайыншинский район",
-                "Тимирязевский район",
-                "Уалихановский район",
-                "Район Шал акына"
+                "Выберите район / город...", "Город Петропавловск", "Айыртауский район", "Акжарский район",
+                "Аккайынский район", "Есильский район", "Жамбылский район", "Район Магжана Жумабаева",
+                "Кызылжарский район", "Мамлютский район", "Район имени Габита Мусрепова",
+                "Тайыншинский район", "Тимирязевский район", "Уалихановский район", "Район Шал акына"
             ],
             kk: [
-                "Ауданды / қаланы таңдаңыз...",
-                "Петропавл қаласы",
-                "Айыртау ауданы",
-                "Ақжар ауданы",
-                "Аққайың ауданы",
-                "Есiл ауданы",
-                "Жамбыл ауданы",
-                "Мағжан Жұмабаев ауданы",
-                "Қызылжар ауданы",
-                "Мамлют ауданы",
-                "Ғабит Мүсірепов ауданы",
-                "Тайынша ауданы",
-                "Тимирязев ауданы",
-                "Уәлиханов ауданы",
-                "Шал ақын ауданы"
+                "Ауданды / қаланы таңдаңыз...", "Петропавл қаласы", "Айыртау ауданы", "Ақжар ауданы",
+                "Аққайың ауданы", "Есiл ауданы", "Жамбыл ауданы", "Мағжан Жұмабаев ауданы",
+                "Қызылжар ауданы", "Мамлют ауданы", "Ғабит Мүсірепов ауданы",
+                "Тайынша ауданы", "Тимирязев ауданы", "Уәлиханов ауданы", "Шал ақын ауданы"
+            ]
+        };
+
+        const categoriesStructured = {
+            ru: [
+                {
+                    cat: "🌿 Экология и водоемы",
+                    subs: ["Стихийная свалка", "Загрязнение водоемов (Есиль и др.)", "Вырубка деревьев", "Загрязнение воздуха / Смог"]
+                },
+                {
+                    cat: "🏙️ Инфраструктура и ЖКХ",
+                    subs: ["ТЭЦ-2 / Отопление", "Порывы водопровода / Канализация", "Отключение света / Освещение"]
+                },
+                {
+                    cat: "🛣️ Дороги и Благоустройство",
+                    subs: ["Ямы на дорогах", "Отсутствие тротуаров", "Открытые люки", "Невывоз ТБО / мусора"]
+                },
+                {
+                    cat: "⚖️ Другое / Защита прав",
+                    subs: ["Социальные вопросы", "Правовая консультация", "Прочее обращение"]
+                }
+            ],
+            kk: [
+                {
+                    cat: "🌿 Экология және су ресурстары",
+                    subs: ["Заңсыз қоқыс орны", "Су айдындарының ластануы", "Ағаштарды отау", "Ауаның ластануы / Смог"]
+                },
+                {
+                    cat: "🏙️ ТҮКШ және инфрақұрылым",
+                    subs: ["ЖЭО-2 / Жылу мәселесі", "Су құбыры жарылуы / Канализация", "Жарықтың өшуі / Көше жарығы"]
+                },
+                {
+                    cat: "🛣️ Жолдар мен көркейту",
+                    subs: ["Жолдағы шұңқырлар", "Тротуарлардың болмауы", "Ашық люктер", "Қоқысты шығармау"]
+                },
+                {
+                    cat: "⚖️ Басқа / Құқық қорғау",
+                    subs: ["Әлеуметтік сұрақтар", "Құқықтық кеңес", "Басқа өтініш"]
+                }
             ]
         };
 
         const translations = {
             ru: {
-                langBtn: "ҚАЗ",
-                joinHeaderBtn: "+ Вступить",
-                bannerTitle: "Северо-Казахстанский филиал",
-                bannerSub: "Партия зеленых «Байтақ»",
-                bannerBtn: "Присоединиться к партии",
-                receptionTitle: "Приемная",
-                receptionSub: "Подать обращение",
-                donateTitle: "Взнос / QR",
-                donateSub: "Поддержать филиал",
-                newsHeader: "Новости филиала",
-                allNewsLink: "Telegram-канал →",
-                teamHeader: "Руководство филиала",
-                leaderTitle: "Председатель филиала",
-                leaderLoc: "СКО, г. Петропавловск",
-                modalTitle: "Заявка на вступление",
-                labelFio: "ФИО полностью",
-                labelPhone: "Телефон",
-                labelRegion: "Район / Город СКО",
-                submitBtn: "Отправить анкету",
-                navHome: "Главная",
-                navNews: "Новости",
-                navRec: "Приемная",
-                navTeam: "Команда",
-                navDonate: "Взнос"
+                langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить", bannerTitle: "Северо-Казахстанский филиал",
+                bannerSub: "Партия зеленых «Байтақ»", bannerBtn: "Присоединиться к партии", receptionTitle: "Карта / Приемная",
+                receptionSub: "Подать обращение", donateTitle: "Взнос / QR", donateSub: "Поддержать филиал",
+                newsHeader: "Новости филиала", allNewsLink: "Telegram-канал →", teamHeader: "Руководство филиала",
+                leaderTitle: "Председатель филиала", leaderLoc: "СКО, г. Петропавловск", modalTitle: "Заявка на вступление",
+                labelFio: "ФИО полностью", labelPhone: "Телефон", labelRegion: "Район / Город СКО", submitBtn: "Отправить анкету",
+                recModalTitle: "Общественная приемная СКО", recLabelFio: "ФИО полностью", recLabelPhone: "Телефон",
+                recLabelRegion: "Район / Город", recLabelIin: "ИИН (необязательно)", recLabelCategory: "Категория вопроса",
+                recLabelSubCategory: "Подкатегория", recLabelText: "Суть обращения", recSubmitBtn: "Отправить обращение на карту",
+                consentText: "Согласен на обработку персональных данных и с условиями", recConsentText: "Согласен на обработку данных и с условиями",
+                navHome: "Главная", navNews: "Новости", navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос"
             },
             kk: {
-                langBtn: "РУС",
-                joinHeaderBtn: "+ Қосылу",
-                bannerTitle: "Солтүстік Қазақстан филиалы",
-                bannerSub: "«Байтақ» жасылдар партиясы",
-                bannerBtn: "Партияға қосылу",
-                receptionTitle: "Қабылдау бөлмесі",
-                receptionSub: "Өтініш жіберу",
-                donateTitle: "Жарна / QR",
-                donateSub: "Филиалды қолдау",
-                newsHeader: "Филиал жаңалықтары",
-                allNewsLink: "Telegram-канал →",
-                teamHeader: "Филиал басшылығы",
-                leaderTitle: "Филиал төрағасы",
-                leaderLoc: "СҚО, Петропавл қ.",
-                modalTitle: "Партияға қосылу өтініші",
-                labelFio: "Толық Т.А.Ә.",
-                labelPhone: "Телефон нөмірі",
-                labelRegion: "СҚО ауданы / қаласы",
-                submitBtn: "Сауалнаманы жіберу",
-                navHome: "Басты",
-                navNews: "Жаңалықтар",
-                navRec: "Қабылдау",
-                navTeam: "Команда",
-                navDonate: "Жарна"
+                langBtn: "РУС", joinHeaderBtn: "+ Қосылу", bannerTitle: "Солтүстік Қазақстан филиалы",
+                bannerSub: "«Байтақ» жасылдар партиясы", bannerBtn: "Партияға қосылу", receptionTitle: "Карта / Қабылдау",
+                receptionSub: "Өтініш жіберу", donateTitle: "Жарна / QR", donateSub: "Филиалды қолдау",
+                newsHeader: "Филиал жаңалықтары", allNewsLink: "Telegram-канал →", teamHeader: "Филиал басшылығы",
+                leaderTitle: "Филиал төрағасы", leaderLoc: "СҚО, Петропавл қ.", modalTitle: "Партияға қосылу өтініші",
+                labelFio: "Толық Т.А.Ә.", labelPhone: "Телефон нөмірі", labelRegion: "СҚО ауданы / қаласы", submitBtn: "Сауалнаманы жіберу",
+                recModalTitle: "СҚО қоғамдық қабылдау бөлмесі", recLabelFio: "Толық Т.А.Ә.", recLabelPhone: "Телефон нөмірі",
+                recLabelRegion: "СҚО ауданы / қаласы", recLabelIin: "ЖСН (міндетті емес)", recLabelCategory: "Сұрақ санаты",
+                recLabelSubCategory: "Ішкі санат", recLabelText: "Өтініштің мәні", recSubmitBtn: "Өтінішті картаға жіберу",
+                consentText: "Деректерді өңдеуге және шарттарға келісемін", recConsentText: "Деректерді өңдеуге және шарттарға келісемін",
+                navHome: "Басты", navNews: "Жаңалықтар", navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна"
             }
         };
 
-        function renderRegions() {
-            const selectEl = document.getElementById('inputRegion');
-            const list = regionsData[currentLang];
-            let html = '';
+        function initMap() {
+            if (map) return;
+            setTimeout(() => {
+                map = L.map('map').setView([selectedLat, selectedLng], 11);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
 
-            list.forEach((item, index) => {
-                if (index === 0) {
-                    html += `<option value="" disabled selected>${item}</option>`;
-                } else {
-                    html += `<option value="${item}">${item}</option>`;
-                }
+                marker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(map);
+
+                map.on('click', function(e) {
+                    selectedLat = e.latlng.lat;
+                    selectedLng = e.latlng.lng;
+                    marker.setLatLng([selectedLat, selectedLng]);
+                });
+
+                marker.on('dragend', function(e) {
+                    let pos = marker.getLatLng();
+                    selectedLat = pos.lat;
+                    selectedLng = pos.lng;
+                });
+            }, 300);
+        }
+
+        function renderSelects() {
+            ['inputRegion', 'recInputRegion'].forEach(id => {
+                const selectEl = document.getElementById(id);
+                if (!selectEl) return;
+                const list = regionsData[currentLang];
+                let html = '';
+                list.forEach((item, index) => {
+                    html += index === 0 ? `<option value="" disabled selected>${item}</option>` : `<option value="${item}">${item}</option>`;
+                });
+                selectEl.innerHTML = html;
             });
 
-            selectEl.innerHTML = html;
+            const catSelect = document.getElementById('recInputCategory');
+            if (catSelect) {
+                const cats = categoriesStructured[currentLang];
+                let html = `<option value="" disabled selected>${currentLang === 'ru' ? 'Выберите категорию...' : 'Санатты таңдаңыз...'}</option>`;
+                cats.forEach((c, idx) => {
+                    html += `<option value="${idx}">${c.cat}</option>`;
+                });
+                catSelect.innerHTML = html;
+            }
+            updateSubcategories();
+        }
+
+        function updateSubcategories() {
+            const catIdx = document.getElementById('recInputCategory').value;
+            const subSelect = document.getElementById('recInputSubCategory');
+            if (!subSelect) return;
+
+            if (catIdx === "" || catIdx === null) {
+                subSelect.innerHTML = `<option value="" disabled selected>${currentLang === 'ru' ? 'Сначала выберите категорию' : 'Алдымен санатты таңдаңыз'}</option>`;
+                return;
+            }
+
+            const subs = categoriesStructured[currentLang][catIdx].subs;
+            let html = `<option value="" disabled selected>${currentLang === 'ru' ? 'Выберите подкатегорию...' : 'Ішкі санатты таңдаңыз...'}</option>`;
+            subs.forEach(s => {
+                html += `<option value="${s}">${s}</option>`;
+            });
+            subSelect.innerHTML = html;
         }
 
         function toggleLanguage() {
@@ -277,70 +418,146 @@
                 if (el) el.innerText = t[key];
             }
 
-            renderRegions();
+            document.getElementById('recInputText').placeholder = currentLang === 'ru' ? 'Опишите проблему...' : 'Мәселені сипаттаңыз...';
+            renderOfferText();
+            renderSelects();
             renderNews();
         }
 
-        function toggleModal(show) {
+        function renderOfferText() {
+            const offerBody = document.getElementById('offerBody');
+            if (currentLang === 'ru') {
+                offerBody.innerHTML = `
+                    <p><b>1. Общие положения:</b> Данная PWA-платформа является официальным цифровым инструментом <b>СЕВЕРО-КАЗАХСТАНСКОГО ОБЛАСТНОГО ФИЛИАЛА ОБЩЕСТВЕННОГО ОБЪЕДИНЕНИЯ "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ"</b>.</p>
+                    <p><b>2. Сбор данных:</b> Заполняя формы на сайте, вы даете добровольное согласие СЕВЕРО-КАЗАХСТАНСКОМУ ОБЛАСТНОМУ ФИЛИАЛУ ОО "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ" на сбор и обработку персональных данных (ФИО, телефон, район, ИИН) согласно Закону РК № 94-V «О персональных данных и их защите».</p>
+                    <p><b>3. Назначение обращений:</b> Все поступившие обращения обрабатываются общественной приемной филиала. Указание ИИН является добровольным и необходимо для направления официальных депутатских запросов в государственные органы РК от лица филиала партии.</p>
+                    <p><b>4. Ответственность:</b> Заявитель несет личную ответственность за достоверность предоставляемых сведений.</p>
+                `;
+            } else {
+                offerBody.innerHTML = `
+                    <p><b>1. Жалпы ережелер:</b> Бұл PWA-платформа <b>"ҚАЗАҚСТАННЫҢ "БАЙТАҚ" ЖАСЫЛДАР ПАРТИЯСЫ" ҚОҒАМДЫҚ БІРЛЕСТІГІНІҢ СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫНЫҢ</b> ресми цифрлық құралы болып табылады.</p>
+                    <p><b>2. Деректерді жинау:</b> Формаларды толтыра отырып, сіз "ҚАЗАҚСТАННЫҢ "БАЙТАҚ" ЖАСЫЛДАР ПАРТИЯСЫ" ҚБ СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫНА ҚР № 94-V «Жеке деректер және оларды қорғау туралы» Заңына сәйкес жеке деректеріңізді (Т.А.Ә., телефон, аудан, ЖСН) жинауға және өңдеуге өз еркіңізбен келісім бересіз.</p>
+                    <p><b>3. Өтініштердің мақсаты:</b> Барлық түскен өтініштер филиалдың қоғамдық қабылдау бөлмесінде өңделеді. ЖСН көрсету ерікті болып табылады.</p>
+                    <p><b>4. Жауапкершілік:</b> Өтініш беруші ұсынылған мәліметтердің шынайылығына жеке жауапты болады.</p>
+                `;
+            }
+        }
+
+        function toggleJoinModal(show) {
             document.getElementById('joinModal').classList.toggle('hidden', !show);
         }
 
-        async function submitForm(e) {
+        function toggleRecModal(show) {
+            const modal = document.getElementById('recModal');
+            modal.classList.toggle('hidden', !show);
+            if (show) initMap();
+        }
+
+        function toggleOfferModal(show) {
+            document.getElementById('offerModal').classList.toggle('hidden', !show);
+        }
+
+        // Отправка заявки строго в тему «Заявки в партию» (ID: 2)
+        async function submitJoinForm(e) {
             e.preventDefault();
-
-            const regionVal = document.getElementById('inputRegion').value;
-            if (!regionVal) {
-                alert(currentLang === 'ru' ? 'Пожалуйста, выберите район / город СКО' : 'Өтініш, СҚО ауданын / қаласын таңдаңыз');
-                return;
-            }
-
             const submitBtn = document.getElementById('submitBtn');
-            const originalBtnText = submitBtn.innerText;
             submitBtn.disabled = true;
             submitBtn.innerText = currentLang === 'ru' ? 'Отправка...' : 'Жіберілуде...';
 
             const fio = document.getElementById('inputFio').value;
             const phone = document.getElementById('inputPhone').value;
+            const regionVal = document.getElementById('inputRegion').value;
 
-            const text = `📥 *ЖАҢА ӨТІНІШ / НОВАЯ ЗАЯВКА*\n\n` +
+            const text = `📥 *ПАРТИЯҒА ҚОСЫЛУ / ЗАЯВКА НА ВСТУПЛЕНИЕ*\n\n` +
                          `👤 *ФИО:* ${fio}\n` +
                          `📞 *Тел:* ${phone}\n` +
                          `📍 *Регион:* ${regionVal}\n\n` +
-                         `🌐 _Отправлено с PWA-сайта sqo.baytaq.kz_`;
+                         `🌐 _PWA sqo.baytaq.kz_`;
 
             try {
                 const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: text,
-                        parse_mode: 'Markdown'
+                    body: JSON.stringify({ 
+                        chat_id: CHAT_ID, 
+                        message_thread_id: TOPIC_JOIN,
+                        text: text, 
+                        parse_mode: 'Markdown' 
                     })
                 });
 
                 if (response.ok) {
                     alert(currentLang === 'ru' ? 'Заявка успешно отправлена!' : 'Өтініш сәтті жіберілді!');
                     document.getElementById('joinForm').reset();
-                    renderRegions();
-                    toggleModal(false);
-                } else {
-                    alert(currentLang === 'ru' ? 'Ошибка отправки. Попробуйте снова.' : 'Қате шықты. Қайтадан байқап көрiңiз.');
+                    renderSelects();
+                    toggleJoinModal(false);
                 }
             } catch (err) {
-                alert(currentLang === 'ru' ? 'Ошибка сети. Проверьте соединение.' : 'Желі қатесі.');
+                alert('Ошибка сети');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = originalBtnText;
+                submitBtn.innerText = translations[currentLang].submitBtn;
             }
         }
 
-        // Загрузка постов из Telegram-канала @sqo_baytaq
+        // Отправка обращения строго в тему «Приемная (Карта)» (ID: 4)
+        async function submitRecForm(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('recSubmitBtn');
+            submitBtn.disabled = true;
+
+            const fio = document.getElementById('recInputFio').value;
+            const phone = document.getElementById('recInputPhone').value;
+            const region = document.getElementById('recInputRegion').value;
+            const iin = document.getElementById('recInputIin').value || 'Не указан';
+            const catIdx = document.getElementById('recInputCategory').value;
+            const catName = categoriesStructured[currentLang][catIdx].cat;
+            const subCatName = document.getElementById('recInputSubCategory').value;
+            const textMsg = document.getElementById('recInputText').value;
+
+            const reqId = `#SQO-${Math.floor(100 + Math.random() * 900)}`;
+            const mapLink = `https://maps.google.com/?q=${selectedLat.toFixed(5)},${selectedLng.toFixed(5)}`;
+
+            const telegramText = `📩 *ҚАБЫЛДАУ БӨЛМЕСІ / НОВОЕ ОБРАЩЕНИЕ (${reqId})*\n\n` +
+                                 `👤 *ФИО:* ${fio}\n` +
+                                 `📞 *Тел:* ${phone}\n` +
+                                 `🪪 *ИИН:* ${iin}\n` +
+                                 `📍 *Регион:* ${region}\n` +
+                                 `📂 *Категория:* ${catName}\n` +
+                                 `🏷️ *Подкатегория:* ${subCatName}\n` +
+                                 `🗺️ *Локация на карте:* [Открыть Google Maps](${mapLink})\n\n` +
+                                 `📝 *Текст обращения:*\n${textMsg}\n\n` +
+                                 `🟢 _Статус: В обработке_`;
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chat_id: CHAT_ID, 
+                        message_thread_id: TOPIC_RECEPTION,
+                        text: telegramText, 
+                        parse_mode: 'Markdown' 
+                    })
+                });
+
+                if (response.ok) {
+                    alert((currentLang === 'ru' ? 'Обращение принято! Номер: ' : 'Өтініш қабылданды! Нөмірі: ') + reqId);
+                    document.getElementById('recForm').reset();
+                    renderSelects();
+                    toggleRecModal(false);
+                }
+            } catch (err) {
+                alert('Ошибка отправки');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
         async function fetchTelegramNews() {
             try {
                 const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://rsshub.app/telegram/channel/sqo_baytaq');
                 const data = await res.json();
-                
                 if (data.status === 'ok' && data.items && data.items.length > 0) {
                     rawNewsData = data.items;
                     renderNews();
@@ -355,23 +572,16 @@
         function renderNews() {
             const container = document.getElementById('newsContainer');
             if (!rawNewsData || rawNewsData.length === 0) return;
-
             let html = '';
             rawNewsData.slice(0, 3).forEach(item => {
                 let fullText = item.description.replace(/<[^>]*>?/gm, '');
                 let parts = fullText.split(/─── 🌿 ───|---|───/);
-                
-                let kkText = parts[0] || fullText;
-                let ruText = parts[1] || parts[0] || fullText;
-
-                let displayText = currentLang === 'kk' ? kkText.trim() : ruText.trim();
+                let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
                 let title = displayText.split('\n')[0] || displayText.slice(0, 80);
 
                 html += `
                     <a href="${item.link}" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
-                        <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">
-                            🌱
-                        </div>
+                        <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
                         <div class="flex flex-col justify-between overflow-hidden">
                             <div>
                                 <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
@@ -390,9 +600,7 @@
             const isRu = currentLang === 'ru';
             container.innerHTML = `
                 <a href="https://t.me/sqo_baytaq" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
-                    <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">
-                        🌱
-                    </div>
+                    <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
                     <div class="flex flex-col justify-between overflow-hidden">
                         <div>
                             <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
@@ -406,8 +614,8 @@
             `;
         }
 
-        // Инициализация при загрузке
-        renderRegions();
+        renderOfferText();
+        renderSelects();
         fetchTelegramNews();
 
         if ('serviceWorker' in navigator) {
