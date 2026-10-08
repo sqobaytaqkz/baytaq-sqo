@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,16 +36,16 @@
         <div class="flex items-center space-x-2">
             <img src="logo.png" alt="Байтақ" class="h-9 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x40/00875A/FFFFFF?text=BAYTAQ'">
             <span class="text-[10px] font-bold bg-baytaq-light text-baytaq px-2 py-0.5 rounded-full uppercase tracking-wider">
-                СКО
+                СҚО
             </span>
         </div>
         
         <div class="flex items-center space-x-2">
             <button onclick="toggleLanguage()" id="langBtn" class="border border-emerald-600 text-baytaq font-bold px-2.5 py-1 rounded-full text-xs shadow-sm hover:bg-baytaq-light transition">
-                ҚАЗ
+                РУС
             </button>
             <button onclick="toggleJoinModal(true)" id="joinHeaderBtn" class="bg-baytaq hover:bg-baytaq-dark text-white font-bold px-3.5 py-1.5 rounded-full text-xs shadow-sm transition">
-                + Вступить
+                + Қосылу
             </button>
         </div>
     </header>
@@ -53,16 +53,16 @@
     <!-- Главный контент -->
     <main class="p-4 max-w-lg mx-auto space-y-5">
         
-        <!-- Приветственный баннер с полным юридическим наименованием -->
+        <!-- Приветственный баннер -->
         <div class="bg-baytaq-light border border-emerald-100 rounded-2xl p-5 text-center relative overflow-hidden">
             <h1 id="bannerTitle" class="text-xs sm:text-sm font-extrabold text-baytaq-dark uppercase tracking-tight mb-1 leading-snug">
-                СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ
+                СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫ
             </h1>
             <p id="bannerSub" class="text-[11px] sm:text-xs font-bold text-emerald-800 uppercase tracking-tight mb-4 leading-normal">
-                ОО "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ""
+                "ҚАЗАҚСТАННЫҢ "БАЙТАҚ" ЖАСЫЛДАР ПАРТИЯСЫ" ҚБ
             </p>
             <button onclick="toggleJoinModal(true)" id="bannerBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition">
-                Присоединиться к партии
+                Партияға қосылу
             </button>
         </div>
 
@@ -70,41 +70,41 @@
         <div class="grid grid-cols-2 gap-3">
             <div onclick="toggleRecModal(true)" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition hover:border-baytaq">
                 <span class="text-2xl block mb-1">🗺️</span>
-                <span id="receptionTitle" class="font-bold text-sm text-gray-800 block">Карта / Приемная</span>
-                <span id="receptionSub" class="text-[11px] text-gray-500">Подать обращение</span>
+                <span id="receptionTitle" class="font-bold text-sm text-gray-800 block">Карта / Қабылдау</span>
+                <span id="receptionSub" class="text-[11px] text-gray-500">Өтініш жіберу</span>
             </div>
             <div onclick="toggleDonateModal(true)" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition hover:border-baytaq">
                 <span class="text-2xl block mb-1">💚</span>
-                <span id="donateTitle" class="font-bold text-sm text-gray-800 block">Взнос / Реквизиты</span>
-                <span id="donateSub" class="text-[11px] text-gray-500">Поддержать филиал</span>
+                <span id="donateTitle" class="font-bold text-sm text-gray-800 block">Жарна / Деректемелер</span>
+                <span id="donateSub" class="text-[11px] text-gray-500">Филиалды қолдау</span>
             </div>
         </div>
 
         <!-- Раздел Новости -->
         <div id="newsSection" class="space-y-3">
             <div class="flex justify-between items-center">
-                <h2 id="newsHeader" class="font-bold text-sm text-gray-900">Новости филиала</h2>
-                <button onclick="openArchiveModal(true)" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline bg-emerald-50 px-2.5 py-1 rounded-lg">Все новости (Архив) →</button>
+                <h2 id="newsHeader" class="font-bold text-sm text-gray-900">Филиал жаңалықтары</h2>
+                <button onclick="openArchiveModal(true)" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline bg-emerald-50 px-2.5 py-1 rounded-lg">Барлық жаңалықтар (Мұрағат) →</button>
             </div>
             <div id="newsContainer" class="space-y-3">
                 <div class="bg-white rounded-xl p-4 text-center border border-gray-100 text-xs text-gray-400">
-                    Загрузка новостей...
+                    Жаңалықтар жүктелуде...
                 </div>
             </div>
         </div>
 
-        <!-- Раздел «Команда / Партиялық құрам» -->
+        <!-- Раздел «Команда» -->
         <div id="teamSection" class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
-                <h2 id="teamHeader" class="font-bold text-sm text-gray-900">Команда филиала</h2>
-                <span class="text-[10px] bg-emerald-50 text-baytaq px-2 py-0.5 rounded font-bold">СКО</span>
+                <h2 id="teamHeader" class="font-bold text-sm text-gray-900">Филиал командасы</h2>
+                <span class="text-[10px] bg-emerald-50 text-baytaq px-2 py-0.5 rounded font-bold">СҚО</span>
             </div>
 
             <div class="flex space-x-1.5 overflow-x-auto pb-1 text-[11px] no-scrollbar">
-                <button onclick="switchTeamTab('all')" id="tab-all" class="team-tab bg-baytaq text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition">Все</button>
-                <button onclick="switchTeamTab('leadership')" id="tab-leadership" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">Руководство</button>
-                <button onclick="switchTeamTab('politburo')" id="tab-politburo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">Политбюро</button>
-                <button onclick="switchTeamTab('ppo')" id="tab-ppo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">ППО / Районы</button>
+                <button onclick="switchTeamTab('all')" id="tab-all" class="team-tab bg-baytaq text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition">Барлығы</button>
+                <button onclick="switchTeamTab('leadership')" id="tab-leadership" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">Басшылық</button>
+                <button onclick="switchTeamTab('politburo')" id="tab-politburo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">Саяси бюро</button>
+                <button onclick="switchTeamTab('ppo')" id="tab-ppo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">БПҰ / Аудандар</button>
             </div>
 
             <div id="teamList" class="space-y-3"></div>
@@ -112,64 +112,77 @@
 
     </main>
 
-    <!-- Модальное окно: Архив новостей с тегами и календарем -->
+    <!-- Всплывающий баннер для установки PWA -->
+    <div id="pwaInstallBanner" class="fixed bottom-16 left-4 right-4 bg-white border border-emerald-200 rounded-2xl p-4 shadow-xl hidden z-50 flex items-center justify-between space-x-3">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">🌱</span>
+            <div>
+                <h4 id="pwaTitle" class="font-bold text-xs text-gray-900">«Baytaq SQO» қолданбасын орнатыңыз</h4>
+                <p id="pwaSub" class="text-[10px] text-gray-500">Жылдам қолжетімділік пен офлайн жұмыс үшін</p>
+            </div>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="installPWA()" id="pwaInstallBtn" class="bg-baytaq text-white text-xs font-bold px-3 py-2 rounded-xl shadow">Орнату</button>
+            <button onclick="closeInstallBanner()" class="text-gray-400 font-bold text-lg px-1">&times;</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Архив новостей -->
     <div id="archiveModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="archiveTitle" class="font-bold text-base text-baytaq-dark">Архив новостей</h3>
+                <h3 id="archiveTitleModal" class="font-bold text-base text-baytaq-dark">Жаңалықтар мұрағаты</h3>
                 <button onclick="openArchiveModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
 
-            <!-- Фильтры по английским тегам и дате -->
             <div class="space-y-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                 <div class="flex space-x-1 overflow-x-auto pb-1 text-[11px] no-scrollbar">
-                    <button onclick="filterByTag('all')" id="tag-btn-all" class="tag-filter bg-baytaq text-white px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition">Все</button>
+                    <button onclick="filterByTag('all')" id="tag-btn-all" class="tag-filter bg-baytaq text-white px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition">Барлығы</button>
                     <button onclick="filterByTag('#news')" id="tag-btn-news" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#news</button>
                     <button onclick="filterByTag('#jkh')" id="tag-btn-jkh" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#jkh</button>
                     <button onclick="filterByTag('#eco')" id="tag-btn-eco" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#eco</button>
                     <button onclick="filterByTag('#announcement')" id="tag-btn-announcement" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#announcement</button>
                 </div>
                 <div class="flex items-center justify-between pt-1 border-t border-emerald-200">
-                    <span id="lblFilterDate" class="text-[10px] font-bold text-emerald-900">Календарь:</span>
+                    <span id="lblFilterDate" class="text-[10px] font-bold text-emerald-900">Күнтізбе:</span>
                     <div class="flex space-x-1.5">
                         <input type="date" id="newsDateFilter" onchange="applyFilters()" class="border border-emerald-300 rounded-lg p-1 text-xs bg-white text-gray-700 outline-none">
-                        <button onclick="resetFilters()" class="bg-white border border-gray-300 text-gray-600 px-2 py-1 rounded-lg text-xs font-semibold">Сброс</button>
+                        <button onclick="resetFilters()" id="resetBtn" class="bg-white border border-gray-300 text-gray-600 px-2 py-1 rounded-lg text-xs font-semibold">Тазарту</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Список архива -->
             <div id="archiveContainer" class="space-y-3"></div>
         </div>
     </div>
 
-    <!-- Модальные окна: Вступить, Приемная, Взносы, Оферта, Просмотр новости -->
+    <!-- Модальное окно: Вступить -->
     <div id="joinModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="modalTitle" class="font-bold text-lg text-baytaq-dark">Заявка на вступление</h3>
+                <h3 id="joinModalTitle" class="font-bold text-lg text-baytaq-dark">Партияға қосылу өтініші</h3>
                 <button onclick="toggleJoinModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
             <form id="joinForm" onsubmit="submitJoinForm(event)" class="space-y-3">
                 <div>
-                    <label class="text-xs font-semibold text-gray-600">ФИО полностью</label>
+                    <label id="lblFio" class="text-xs font-semibold text-gray-600">Толық Т.А.Ә.</label>
                     <input type="text" id="inputFio" required class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-xs font-semibold text-gray-600">Телефон (WhatsApp)</label>
+                        <label id="lblPhone" class="text-xs font-semibold text-gray-600">Телефон (WhatsApp)</label>
                         <input type="tel" id="inputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
                     </div>
                     <div>
-                        <label class="text-xs font-semibold text-gray-600">ИИН</label>
-                        <input type="text" id="inputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
+                        <label id="lblIin" class="text-xs font-semibold text-gray-600">ЖСН</label>
+                        <input type="text" id="inputIin" maxlength="12" placeholder="Міндетті емес" class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-gray-600">Район / Город СКО</label>
+                    <label id="lblRegion" class="text-xs font-semibold text-gray-600">СҚО ауданы / қаласы</label>
                     <select id="inputRegion" required class="w-full border rounded-lg p-2.5 text-sm mt-1 bg-white outline-none"></select>
                 </div>
-                <button type="submit" class="w-full bg-baytaq text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">Отправить анкету</button>
+                <button type="submit" id="joinSubmitBtn" class="w-full bg-baytaq text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">Сауалнаманы жіберу</button>
             </form>
         </div>
     </div>
@@ -178,47 +191,47 @@
     <div id="recModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[92vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-2">
-                <h3 id="recModalTitle" class="font-bold text-base text-baytaq-dark">Общественная приемная</h3>
+                <h3 id="recModalTitle" class="font-bold text-base text-baytaq-dark">Қоғамдық қабылдау бөлмесі</h3>
                 <button onclick="toggleRecModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
             <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-600">Укажите место на карте СКО (кликните):</label>
+                <label id="lblMapHint" class="text-xs font-semibold text-gray-600">СҚО картасынан орынды таңдаңыз (басыңыз):</label>
                 <div id="map" class="w-full h-40 rounded-xl border border-gray-200"></div>
             </div>
             <form id="recForm" onsubmit="submitRecForm(event)" class="space-y-2.5">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] font-semibold text-gray-600">ФИО полностью</label>
+                        <label id="recLblFio" class="text-[11px] font-semibold text-gray-600">Толық Т.А.Ә.</label>
                         <input type="text" id="recInputFio" required class="w-full border rounded-lg p-2 text-xs outline-none">
                     </div>
                     <div>
-                        <label class="text-[11px] font-semibold text-gray-600">Телефон (WhatsApp)</label>
+                        <label id="recLblPhone" class="text-[11px] font-semibold text-gray-600">Телефон (WhatsApp)</label>
                         <input type="tel" id="recInputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2 text-xs outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] font-semibold text-gray-600">Район / Город</label>
+                        <label id="recLblRegion" class="text-[11px] font-semibold text-gray-600">Аудан / Қала</label>
                         <select id="recInputRegion" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
                     </div>
                     <div>
-                        <label class="text-[11px] font-semibold text-gray-600">ИИН</label>
-                        <input type="text" id="recInputIin" maxlength="12" placeholder="Необязательно" class="w-full border rounded-lg p-2 text-xs outline-none">
+                        <label id="recLblIin" class="text-[11px] font-semibold text-gray-600">ЖСН</label>
+                        <input type="text" id="recInputIin" maxlength="12" placeholder="Міндетті емес" class="w-full border rounded-lg p-2 text-xs outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="text-[11px] font-semibold text-gray-600">Категория вопроса</label>
+                    <label id="recLblCategory" class="text-[11px] font-semibold text-gray-600">Сұрақ санаты</label>
                     <select id="recInputCategory" onchange="updateSubcategories()" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
                 </div>
                 <div>
-                    <label class="text-[11px] font-semibold text-gray-600">Подкатегория</label>
+                    <label id="recLblSubCategory" class="text-[11px] font-semibold text-gray-600">Ішкі санат</label>
                     <select id="recInputSubCategory" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
                 </div>
                 <div>
-                    <label class="text-[11px] font-semibold text-gray-600">Суть обращения</label>
-                    <textarea id="recInputText" rows="2" required placeholder="Опишите проблему..." class="w-full border rounded-lg p-2 text-xs outline-none"></textarea>
+                    <label id="recLblText" class="text-[11px] font-semibold text-gray-600">Өтініш мәні</label>
+                    <textarea id="recInputText" rows="2" required placeholder="Мәселені сипаттаңыз..." class="w-full border rounded-lg p-2 text-xs outline-none"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs shadow">Отправить обращение</button>
+                <button type="submit" id="recSubmitBtn" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs shadow">Өтінішті жіберу</button>
             </form>
         </div>
     </div>
@@ -227,14 +240,14 @@
     <div id="donateModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-base text-baytaq-dark">Банковские реквизиты</h3>
+                <h3 id="donateModalTitle" class="font-bold text-base text-baytaq-dark">Банктік деректемелер</h3>
                 <button onclick="toggleDonateModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
             <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 space-y-2">
-                <span class="text-xs font-bold text-gray-800 block">СКО Ф-Л ОО "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ"</span>
+                <span id="donateOrg" class="text-xs font-bold text-gray-800 block">"ҚАЗАҚСТАННЫҢ "БАЙТАҚ" ЖАСЫЛДАР ПАРТИЯСЫ" ҚБ СҚО ФФ</span>
                 <span class="text-xs font-mono font-bold text-baytaq-dark select-all block">IBAN: KZ41601A251004530111 (БИН: 230141041716)</span>
             </div>
-            <button onclick="toggleDonateModal(false)" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs">Понятно</button>
+            <button onclick="toggleDonateModal(false)" id="donateOkBtn" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs">Түсінікті</button>
         </div>
     </div>
 
@@ -252,7 +265,7 @@
             <div class="border-t pt-3 space-y-2">
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="shareNewsViaWhatsApp()" class="bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold">💬 WhatsApp</button>
-                    <button onclick="shareNewsNative()" class="bg-baytaq text-white py-2 rounded-xl text-xs font-bold">📲 Поделиться</button>
+                    <button onclick="shareNewsNative()" id="shareBtn" class="bg-baytaq text-white py-2 rounded-xl text-xs font-bold">📲 Бөлісу</button>
                 </div>
             </div>
         </div>
@@ -260,15 +273,16 @@
 
     <!-- Нижняя навигация PWA -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 text-[11px] text-gray-500 z-30">
-        <a href="#" class="flex flex-col items-center text-baytaq font-bold"><span class="text-lg">🏠</span>Главная</a>
-        <a href="#newsSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">📰</span>Новости</a>
-        <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">🗺️</span>Приемная</a>
-        <a href="#teamSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">👥</span>Команда</a>
-        <a href="javascript:void(0)" onclick="toggleDonateModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">💚</span>Взнос</a>
+        <a href="#" class="flex flex-col items-center text-baytaq font-bold"><span class="text-lg">🏠</span><span id="navHome">Басты</span></a>
+        <a href="#newsSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">📰</span><span id="navNews">Жаңалықтар</span></a>
+        <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">🗺️</span><span id="navRec">Қабылдау</span></a>
+        <a href="#teamSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">👥</span><span id="navTeam">Команда</span></a>
+        <a href="javascript:void(0)" onclick="toggleDonateModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">💚</span><span id="navDonate">Жарна</span></a>
     </nav>
 
     <script>
-        let currentLang = 'ru';
+        // Стартовый язык по умолчанию — казахский (kk)
+        let currentLang = 'kk';
         let rawNewsData = [];
         let filteredNewsData = [];
         let currentNewsIndex = null;
@@ -277,6 +291,71 @@
         let map, marker;
         let selectedLat = 54.8667;
         let selectedLng = 69.1500;
+        let deferredPrompt;
+
+        // Полный словарь переводов
+        const translations = {
+            ru: {
+                langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить",
+                bannerTitle: "СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ",
+                bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"",
+                bannerBtn: "Присоединиться к партии",
+                receptionTitle: "Карта / Приемная", receptionSub: "Подать обращение",
+                donateTitle: "Взнос / Реквизиты", donateSub: "Поддержать филиал",
+                newsHeader: "Новости филиала", allNewsLink: "Все новости (Архив) →",
+                teamHeader: "Команда филиала",
+                tabAll: "Все", tabLeadership: "Руководство", tabPolitburo: "Политбюро", tabPpo: "ППО / Районы",
+                pwaTitle: "Установите приложение «Baytaq SQO»", pwaSub: "Для быстрого доступа и работы без интернета", pwaInstallBtn: "Установить",
+                archiveTitleModal: "Архив новостей", lblFilterDate: "Календарь:", resetBtn: "Сброс",
+                joinModalTitle: "Заявка на вступление", lblFio: "ФИО полностью", lblPhone: "Телефон (WhatsApp)", lblIin: "ИИН", lblRegion: "Район / Город СКО", joinSubmitBtn: "Отправить анкету",
+                recModalTitle: "Общественная приемная", lblMapHint: "Укажите место на карте СКО (кликните):",
+                recLblFio: "ФИО полностью", recLblPhone: "Телефон (WhatsApp)", recLblRegion: "Район / Город", recLblIin: "ИИН",
+                recLblCategory: "Категория вопроса", recLblSubCategory: "Подкатегория", recLblText: "Суть обращения", recSubmitBtn: "Отправить обращение",
+                donateModalTitle: "Банковские реквизиты", donateOrg: "СКО Ф-Л ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"", donateOkBtn: "Понятно",
+                shareBtn: "📲 Поделиться",
+                navHome: "Главная", navNews: "Новости", navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос"
+            },
+            kk: {
+                langBtn: "РУС", joinHeaderBtn: "+ Қосылу",
+                bannerTitle: "СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫ",
+                bannerSub: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ",
+                bannerBtn: "Партияға қосылу",
+                receptionTitle: "Карта / Қабылдау", receptionSub: "Өтініш жіберу",
+                donateTitle: "Жарна / Деректемелер", donateSub: "Филиалды қолдау",
+                newsHeader: "Филиал жаңалықтары", allNewsLink: "Барлық жаңалықтар (Мұрағат) →",
+                teamHeader: "Филиал командасы",
+                tabAll: "Барлығы", tabLeadership: "Басшылық", tabPolitburo: "Саяси бюро", tabPpo: "БПҰ / Аудандар",
+                pwaTitle: "«Baytaq SQO» қолданбасын орнатыңыз", pwaSub: "Жылдам қолжетімділік пен офлайн жұмыс үшін", pwaInstallBtn: "Орнату",
+                archiveTitleModal: "Жаңалықтар мұрағаты", lblFilterDate: "Күнтізбе:", resetBtn: "Тазарту",
+                joinModalTitle: "Партияға қосылу өтініші", lblFio: "Толық Т.А.Ә.", lblPhone: "Телефон (WhatsApp)", lblIin: "ЖСН", lblRegion: "СҚО ауданы / қаласы", joinSubmitBtn: "Сауалнаманы жіберу",
+                recModalTitle: "Қоғамдық қабылдау бөлмесі", lblMapHint: "СҚО картасынан орынды таңдаңыз (басыңыз):",
+                recLblFio: "Толық Т.А.Ә.", recLblPhone: "Телефон (WhatsApp)", recLblRegion: "Аудан / Қала", recLblIin: "ЖСН",
+                recLblCategory: "Сұрақ санаты", recLblSubCategory: "Ішкі санат", recLblText: "Өтініш мәні", recSubmitBtn: "Өтінішті жіберу",
+                donateModalTitle: "Банктік деректемелер", donateOrg: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ СҚО ФФ", donateOkBtn: "Түсінікті",
+                shareBtn: "📲 Бөлісу",
+                navHome: "Басты", navNews: "Жаңалықтар", navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна"
+            }
+        };
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBanner = document.getElementById('pwaInstallBanner');
+            if (installBanner) installBanner.classList.remove('hidden');
+        });
+
+        function installPWA() {
+            const installBanner = document.getElementById('pwaInstallBanner');
+            if (installBanner) installBanner.classList.add('hidden');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+            }
+        }
+
+        function closeInstallBanner() {
+            document.getElementById('pwaInstallBanner').classList.add('hidden');
+        }
 
         const teamMembers = [
             { id: 1, roleCategory: 'leadership', fio: { ru: 'Серік Батыржан Бақытжанұлы', kk: 'Серік Батыржан Бақытжанұлы' }, title: { ru: 'И.о. председателя филиала', kk: 'Филиал төрағасының м.а.' }, loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' }, badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: true },
@@ -338,8 +417,11 @@
             const catIdx = document.getElementById('recInputCategory').value;
             const subSelect = document.getElementById('recInputSubCategory');
             if (!subSelect) return;
-            if (catIdx === "") { subSelect.innerHTML = `<option value="" disabled selected>Сначала выберите категорию</option>`; return; }
-            let html = `<option value="" disabled selected>Выберите подкатегорию...</option>`;
+            if (catIdx === "") { 
+                subSelect.innerHTML = `<option value="" disabled selected>${currentLang === 'ru' ? 'Сначала выберите категорию' : 'Алдымен санатты таңдаңыз'}</option>`; 
+                return; 
+            }
+            let html = `<option value="" disabled selected>${currentLang === 'ru' ? 'Выберите подкатегорию...' : 'Ішкі санатты таңдаңыз...'}</option>`;
             categoriesStructured[currentLang][catIdx].subs.forEach(s => { html += `<option value="${s}">${s}</option>`; });
             subSelect.innerHTML = html;
         }
@@ -374,8 +456,18 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'kk' : 'ru';
-            document.getElementById('langBtn').innerText = currentLang === 'ru' ? 'ҚАЗ' : 'РУС';
-            renderSelects(); renderNews(); renderArchiveList(); renderTeam();
+            document.documentElement.lang = currentLang;
+            
+            const t = translations[currentLang];
+            for (let key in t) {
+                const el = document.getElementById(key);
+                if (el) el.innerText = t[key];
+            }
+
+            renderSelects(); 
+            renderNews(); 
+            renderArchiveList(); 
+            renderTeam();
         }
 
         function toggleJoinModal(show) { document.getElementById('joinModal').classList.toggle('hidden', !show); }
@@ -385,6 +477,15 @@
         function openArchiveModal(show) { document.getElementById('archiveModal').classList.toggle('hidden', !show); if(show) applyFilters(); }
 
         async function fetchTelegramNews() {
+            const cachedNews = localStorage.getItem('baytaq_cached_news');
+            if (cachedNews) {
+                try {
+                    rawNewsData = JSON.parse(cachedNews);
+                    applyFilters();
+                    renderNews();
+                } catch (e) {}
+            }
+
             try {
                 const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://t.me/s/sqo_baytaq'));
                 const data = await res.json();
@@ -395,11 +496,10 @@
                     const messages = doc.querySelectorAll('.tgme_widget_message_text');
                     
                     if (messages && messages.length > 0) {
-                        rawNewsData = [];
+                        const freshNews = [];
                         messages.forEach(msg => {
                             let fullText = msg.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]*>?/gm, '');
                             
-                            // Парсинг даты: [ДАТА: ГГГГ-ММ-ДД]
                             let pubDate = new Date().toISOString();
                             const dateMatch = fullText.match(/\[ДАТА:\s*(\d{4}-\d{2}-\d{2})\]/);
                             if (dateMatch) {
@@ -410,18 +510,17 @@
                                 if (dateEl) pubDate = dateEl.getAttribute('datetime');
                             }
 
-                            // Автоматический поиск английского хештега в тексте (#news, #jkh, #eco, #announcement)
                             let tag = '#news';
                             const hashtagMatch = fullText.match(/#(news|jkh|eco|announcement)\b/i);
                             if (hashtagMatch) {
                                 tag = hashtagMatch[0].toLowerCase();
                             }
 
-                            let parts = fullText.split(/─── 🌿 ───|---|───/);
+                            let parts = fullText.split('─── 🌿 ───');
                             let textKk = (parts[0] || fullText).trim();
                             let textRu = (parts[1] || parts[0] || fullText).trim();
 
-                            rawNewsData.push({
+                            freshNews.push({
                                 description: fullText,
                                 pubDate: pubDate,
                                 tag: tag,
@@ -429,22 +528,27 @@
                             });
                         });
 
-                        rawNewsData.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                        freshNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                        
+                        rawNewsData = freshNews;
+                        localStorage.setItem('baytaq_cached_news', JSON.stringify(rawNewsData));
+
                         applyFilters();
                         renderNews();
                         return;
                     }
                 }
-                throw new Error('Empty');
             } catch (err) {
-                rawNewsData = [{
-                    description: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news\n─── 🌿 ───\nСҚО филиалы PWA-сайт әзірлеуде #news',
-                    pubDate: new Date().toISOString(),
-                    tag: '#news',
-                    parsedText: { kk: 'СҚО филиалы PWA-сайт әзірлеуде #news', ru: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news' }
-                }];
-                applyFilters();
-                renderNews();
+                if (!rawNewsData || rawNewsData.length === 0) {
+                    rawNewsData = [{
+                        description: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news\n─── 🌿 ───\nСҚО филиалы PWA-сайт әзірлеуде #news',
+                        pubDate: new Date().toISOString(),
+                        tag: '#news',
+                        parsedText: { kk: 'СҚО филиалы PWA-сайт әзірлеуде #news', ru: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news' }
+                    }];
+                    applyFilters();
+                    renderNews();
+                }
             }
         }
 
@@ -503,7 +607,7 @@
         function renderArchiveList() {
             const container = document.getElementById('archiveContainer');
             if (!filteredNewsData || filteredNewsData.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">Новости не найдены / Жаңалықтар табылмады</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">${currentLang === 'ru' ? 'Новости не найдены' : 'Жаңалықтар табылмады'}</div>`;
                 return;
             }
 
@@ -531,6 +635,7 @@
         function openNewsModal(index) {
             const item = rawNewsData[index];
             if (!item) return;
+            currentNewsIndex = index;
             document.getElementById('newsModalTag').innerText = item.tag;
             document.getElementById('newsModalDate').innerText = new Date(item.pubDate).toLocaleDateString();
             document.getElementById('newsModalBody').innerText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
@@ -540,6 +645,7 @@
         function openArchiveModalItem(index) {
             const item = filteredNewsData[index];
             if (!item) return;
+            currentNewsIndex = rawNewsData.indexOf(item);
             document.getElementById('newsModalTag').innerText = item.tag;
             document.getElementById('newsModalDate').innerText = new Date(item.pubDate).toLocaleDateString();
             document.getElementById('newsModalBody').innerText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
@@ -547,14 +653,28 @@
         }
 
         function shareNewsViaWhatsApp() {
-            window.open(`https://wa.me/?text=` + encodeURIComponent(`📰 Читать в PWA партии Байтақ: ${window.location.href}`), '_blank');
+            if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
+            const item = rawNewsData[currentNewsIndex];
+            let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
+            let title = displayText.split('\n')[0] || 'SQO BAYTAQ';
+            window.open(`https://wa.me/?text=` + encodeURIComponent(`📰 *${title}*\n\n${window.location.href}`), '_blank');
         }
+
         function shareNewsNative() {
             if (navigator.share) { navigator.share({ title: 'SQO BAYTAQ', url: window.location.href }).catch(() => {}); } else { shareNewsViaWhatsApp(); }
         }
 
-        async function submitJoinForm(e) { e.preventDefault(); alert('Заявка отправлена!'); toggleJoinModal(false); }
-        async function submitRecForm(e) { e.preventDefault(); alert('Обращение принято!'); toggleRecModal(false); }
+        async function submitJoinForm(e) { 
+            e.preventDefault(); 
+            alert(currentLang === 'ru' ? 'Заявка отправлена!' : 'Өтініш жіберілді!'); 
+            toggleJoinModal(false); 
+        }
+
+        async function submitRecForm(e) { 
+            e.preventDefault(); 
+            alert(currentLang === 'ru' ? 'Обращение принято!' : 'Өтініш қабылданды!'); 
+            toggleRecModal(false); 
+        }
 
         renderSelects();
         renderTeam();
