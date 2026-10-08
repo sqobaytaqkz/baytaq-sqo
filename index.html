@@ -229,6 +229,35 @@
         </div>
     </div>
 
+    <!-- Модальное окно просмотра новости -->
+    <div id="newsModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-start border-b pb-3">
+                <div>
+                    <span class="text-[10px] bg-emerald-50 text-baytaq px-2 py-0.5 rounded font-semibold uppercase">@sqo_baytaq</span>
+                    <p id="newsModalDate" class="text-[10px] text-gray-400 mt-1"></p>
+                </div>
+                <button onclick="toggleNewsModal(false)" class="text-gray-400 text-2xl font-bold leading-none">&times;</button>
+            </div>
+            
+            <!-- Полный текст новости -->
+            <div id="newsModalBody" class="text-xs text-gray-700 leading-relaxed whitespace-pre-line space-y-2"></div>
+
+            <!-- Кнопки «Поделиться» -->
+            <div class="border-t pt-3 space-y-2">
+                <p id="shareTitle" class="text-[11px] font-bold text-gray-600">📢 Поделиться новостью:</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="shareNewsViaWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1 shadow-sm transition">
+                        <span>💬 WhatsApp</span>
+                    </button>
+                    <button onclick="shareNewsNative()" class="bg-baytaq hover:bg-baytaq-dark text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1 shadow-sm transition">
+                        <span>📲 Поделиться</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно «Публичная Оферта» -->
     <div id="offerModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-3 max-h-[80vh] overflow-y-auto">
@@ -265,6 +294,7 @@
     <script>
         let currentLang = 'ru';
         let rawNewsData = [];
+        let currentNewsIndex = null;
         let map, marker;
         let selectedLat = 54.8667;
         let selectedLng = 69.1500;
@@ -344,7 +374,8 @@
                 recLabelSubCategory: "Подкатегория", recLabelText: "Суть обращения", recLabelFile: "📷 Прикрепить фото или видео:", recSubmitBtn: "Отправить обращение на карту",
                 consentText: "Согласен на обработку персональных данных и с условиями", recConsentText: "Согласен на обработку данных и с условиями",
                 navHome: "Главная", navNews: "Новости", navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос",
-                recBtnFileText: "Выберите файл", recFileNameDefault: "Файл не выбран", offerCloseBtn: "Понятно", offerTitle: "Пользовательское соглашение и Оферта"
+                recBtnFileText: "Выберите файл", recFileNameDefault: "Файл не выбран", offerCloseBtn: "Понятно", offerTitle: "Пользовательское соглашение и Оферта",
+                shareTitle: "📢 Поделиться новостью:"
             },
             kk: {
                 langBtn: "РУС", joinHeaderBtn: "+ Қосылу", 
@@ -360,7 +391,8 @@
                 recLabelSubCategory: "Ішкі санат", recLabelText: "Өтініштің мәні", recLabelFile: "📷 Фото немесе видео тіркеу:", recSubmitBtn: "Өтінішті картаға жіберу",
                 consentText: "Деректерді өңдеуге және шарттарға келісемін", recConsentText: "Деректерді өңдеуге және шарттарға келісемін",
                 navHome: "Басты", navNews: "Жаңалықтар", navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна",
-                recBtnFileText: "Файлды таңдаңыз", recFileNameDefault: "Файл таңдалмады", offerCloseBtn: "Түсінікті", offerTitle: "Пайдаланушы келісімі және Оферта"
+                recBtnFileText: "Файлды таңдаңыз", recFileNameDefault: "Файл таңдалмады", offerCloseBtn: "Түсінікті", offerTitle: "Пайдаланушы келісімі және Оферта",
+                shareTitle: "📢 Жаңалықпен бөлісу:"
             }
         };
 
@@ -468,6 +500,11 @@
             renderOfferText();
             renderSelects();
             renderNews();
+
+            // Перерисовка открытой новости при переключении языка
+            if (currentNewsIndex !== null) {
+                openNewsModal(currentNewsIndex);
+            }
         }
 
         function renderOfferText() {
@@ -509,6 +546,12 @@
 
         function toggleOfferModal(show) {
             document.getElementById('offerModal').classList.toggle('hidden', !show);
+        }
+
+        function toggleNewsModal(show) {
+            const modal = document.getElementById('newsModal');
+            modal.classList.toggle('hidden', !show);
+            if (!show) currentNewsIndex = null;
         }
 
         function cleanPhoneNumber(phone) {
@@ -668,14 +711,14 @@
             const container = document.getElementById('newsContainer');
             if (!rawNewsData || rawNewsData.length === 0) return;
             let html = '';
-            rawNewsData.slice(0, 3).forEach(item => {
+            rawNewsData.slice(0, 5).forEach((item, index) => {
                 let fullText = item.description.replace(/<[^>]*>?/gm, '');
                 let parts = fullText.split(/─── 🌿 ───|---|───/);
                 let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
                 let title = displayText.split('\n')[0] || displayText.slice(0, 80);
 
                 html += `
-                    <a href="${item.link}" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
+                    <div onclick="openNewsModal(${index})" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer active:scale-95 transition">
                         <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
                         <div class="flex flex-col justify-between overflow-hidden">
                             <div>
@@ -684,7 +727,7 @@
                             </div>
                             <span class="text-[10px] text-gray-400 mt-1">${new Date(item.pubDate).toLocaleDateString()}</span>
                         </div>
-                    </a>
+                    </div>
                 `;
             });
             container.innerHTML = html;
@@ -693,20 +736,70 @@
         function renderFallbackNews() {
             const container = document.getElementById('newsContainer');
             const isRu = currentLang === 'ru';
+            const fallbackTitle = isRu 
+                ? 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями' 
+                : '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде';
+            
+            rawNewsData = [{
+                title: fallbackTitle,
+                description: fallbackTitle,
+                pubDate: new Date().toISOString(),
+                link: 'https://t.me/sqo_baytaq'
+            }];
+
             container.innerHTML = `
-                <a href="https://t.me/sqo_baytaq" target="_blank" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq transition block">
+                <div onclick="openNewsModal(0)" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer active:scale-95 transition">
                     <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
                     <div class="flex flex-col justify-between overflow-hidden">
                         <div>
                             <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
-                            <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">
-                                ${isRu ? 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями' : '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде'}
-                            </h3>
+                            <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${fallbackTitle}</h3>
                         </div>
                         <span class="text-[10px] text-gray-400 mt-1">Официально</span>
                     </div>
-                </a>
+                </div>
             `;
+        }
+
+        function openNewsModal(index) {
+            currentNewsIndex = index;
+            const item = rawNewsData[index];
+            if (!item) return;
+
+            let fullText = item.description.replace(/<[^>]*>?/gm, '');
+            let parts = fullText.split(/─── 🌿 ───|---|───/);
+            let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
+
+            document.getElementById('newsModalDate').innerText = item.pubDate ? new Date(item.pubDate).toLocaleDateString() : 'Официально';
+            document.getElementById('newsModalBody').innerText = displayText;
+            
+            toggleNewsModal(true);
+        }
+
+        function shareNewsViaWhatsApp() {
+            if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
+            const item = rawNewsData[currentNewsIndex];
+            let fullText = item.description.replace(/<[^>]*>?/gm, '');
+            let title = fullText.split('\n')[0] || 'SQO BAYTAQ';
+            const shareText = `📰 *${title}*\n\nЧитать подробно в PWA-приложении партии «Байтақ» СКО: ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+        }
+
+        function shareNewsNative() {
+            if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
+            const item = rawNewsData[currentNewsIndex];
+            let fullText = item.description.replace(/<[^>]*>?/gm, '');
+            let title = fullText.split('\n')[0] || 'SQO BAYTAQ';
+
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: title,
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                shareNewsViaWhatsApp();
+            }
         }
 
         renderOfferText();
