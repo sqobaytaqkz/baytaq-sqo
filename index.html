@@ -372,7 +372,7 @@
                     selectedLat = pos.lat;
                     selectedLng = pos.lng;
                 });
-            }, 300);
+            }, 100);
         }
 
         function renderSelects() {
@@ -481,7 +481,15 @@
         function toggleRecModal(show) {
             const modal = document.getElementById('recModal');
             modal.classList.toggle('hidden', !show);
-            if (show) initMap();
+            if (show) {
+                initMap();
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                        map.setView([selectedLat, selectedLng], 11);
+                    }
+                }, 200);
+            }
         }
 
         function toggleOfferModal(show) {
