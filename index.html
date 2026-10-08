@@ -93,17 +93,32 @@
             </div>
         </div>
 
-        <!-- Блок руководства -->
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-            <h2 id="teamHeader" class="font-bold text-sm text-gray-900 border-b pb-2">Руководство филиала</h2>
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500">
-                    👤
-                </div>
-                <div>
-                    <h3 id="leaderTitle" class="font-bold text-sm text-gray-800">Председатель филиала</h3>
-                    <p id="leaderLoc" class="text-xs text-gray-500">СКО, г. Петропавловск</p>
-                </div>
+        <!-- Полноценный раздел «Команда / Партиялық құрам» -->
+        <div id="teamSection" class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 id="teamHeader" class="font-bold text-sm text-gray-900">Команда филиала</h2>
+                <span class="text-[10px] bg-emerald-50 text-baytaq px-2 py-0.5 rounded font-bold">СКО</span>
+            </div>
+
+            <!-- Вкладки-переключатели -->
+            <div class="flex space-x-1.5 overflow-x-auto pb-1 text-[11px] no-scrollbar">
+                <button onclick="switchTeamTab('all')" id="tab-all" class="team-tab bg-baytaq text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition">
+                    Все
+                </button>
+                <button onclick="switchTeamTab('leadership')" id="tab-leadership" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">
+                    Руководство
+                </button>
+                <button onclick="switchTeamTab('politburo')" id="tab-politburo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">
+                    Политбюро
+                </button>
+                <button onclick="switchTeamTab('ppo')" id="tab-ppo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">
+                    ППО / Районы
+                </button>
+            </div>
+
+            <!-- Список членов команды -->
+            <div id="teamList" class="space-y-3">
+                <!-- Контент генерируется из JavaScript -->
             </div>
         </div>
 
@@ -350,7 +365,7 @@
         <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">🗺️</span><span id="navRec">Приемная</span>
         </a>
-        <a href="#" class="flex flex-col items-center hover:text-baytaq">
+        <a href="#teamSection" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">👥</span><span id="navTeam">Команда</span>
         </a>
         <a href="javascript:void(0)" onclick="toggleDonateModal(true)" class="flex flex-col items-center hover:text-baytaq">
@@ -362,6 +377,7 @@
         let currentLang = 'ru';
         let rawNewsData = [];
         let currentNewsIndex = null;
+        let activeTeamTab = 'all';
         let map, marker;
         let selectedLat = 54.8667;
         let selectedLng = 69.1500;
@@ -371,6 +387,100 @@
         
         const TOPIC_JOIN = 2;      // Тема «Заявки в партию»
         const TOPIC_RECEPTION = 4; // Тема «Приемная (Карта)»
+
+        // Данные членов команды филиала
+        const teamMembers = [
+            {
+                id: 1,
+                roleCategory: 'leadership',
+                fio: { ru: 'Серік Батыржан Бақытжанұлы', kk: 'Серік Батыржан Бақытжанұлы' },
+                title: { ru: 'И.о. председателя филиала', kk: 'Филиал төрағасының м.а.' },
+                loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' },
+                badge: { ru: 'Руководство', kk: 'Басшылық' },
+                isLeader: true
+            },
+            {
+                id: 2,
+                roleCategory: 'leadership',
+                fio: { ru: 'Джусупбеков Рустам Маратович', kk: 'Джусупбеков Рустам Маратович' },
+                title: { ru: 'Исполнительный секретарь филиала', kk: 'Филиалдың атқарушы хатшысы' },
+                loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' },
+                badge: { ru: 'Руководство', kk: 'Басшылық' },
+                isLeader: false
+            },
+            {
+                id: 3,
+                roleCategory: 'politburo',
+                fio: { ru: 'Төлеген Жапар Бәриұлы', kk: 'Төлеген Жапар Бәриұлы' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 4,
+                roleCategory: 'politburo',
+                fio: { ru: 'Кускенов Самрат Дулатович', kk: 'Кускенов Самрат Дулатович' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 5,
+                roleCategory: 'politburo',
+                fio: { ru: 'Шугаипов Ринат Шамшетденович', kk: 'Шугаипов Ринат Шамшетденович' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 6,
+                roleCategory: 'politburo',
+                fio: { ru: 'Какимов Ардак Жианкезович', kk: 'Какимов Ардак Жианкезович' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 7,
+                roleCategory: 'politburo',
+                fio: { ru: 'Назарбекова Гульсана Амандыковна', kk: 'Назарбекова Гульсана Амандыковна' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 8,
+                roleCategory: 'politburo',
+                fio: { ru: 'Жолболдыұлы Самат', kk: 'Жолболдыұлы Самат' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 9,
+                roleCategory: 'politburo',
+                fio: { ru: 'Есмуканов Бауыржан Рашевич', kk: 'Есмуканов Бауыржан Рашевич' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            },
+            {
+                id: 10,
+                roleCategory: 'politburo',
+                fio: { ru: 'Кайырбеков Руслан Серикбаевич', kk: 'Кайырбеков Руслан Серикбаевич' },
+                title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' },
+                loc: { ru: 'СКО', kk: 'СҚО' },
+                badge: { ru: 'Политбюро', kk: 'Саяси бюро' },
+                isLeader: false
+            }
+        ];
 
         const regionsData = {
             ru: [
@@ -433,7 +543,7 @@
                 bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"", 
                 bannerBtn: "Присоединиться к партии", receptionTitle: "Карта / Приемная",
                 receptionSub: "Подать обращение", donateTitle: "Взнос / Реквизиты", donateSub: "Поддержать филиал",
-                newsHeader: "Новости филиала", allNewsLink: "Telegram-канал →", teamHeader: "Руководство филиала",
+                newsHeader: "Новости филиала", allNewsLink: "Telegram-канал →", teamHeader: "Команда филиала",
                 leaderTitle: "Председатель филиала", leaderLoc: "СКО, г. Петропавловск", modalTitle: "Заявка на вступление",
                 labelFio: "ФИО полностью", labelPhone: "Телефон (WhatsApp)", labelIin: "ИИН (необязательно)", labelRegion: "Район / Город СКО", submitBtn: "Отправить анкету",
                 recModalTitle: "Общественная приемная СКО", recLabelFio: "ФИО полностью", recLabelPhone: "Телефон (WhatsApp)",
@@ -452,7 +562,7 @@
                 bannerSub: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ", 
                 bannerBtn: "Партияға қосылу", receptionTitle: "Карта / Қабылдау",
                 receptionSub: "Өтініш жіберу", donateTitle: "Жарна / Деректемелер", donateSub: "Филиалды қолдау",
-                newsHeader: "Филиал жаңалықтары", allNewsLink: "Telegram-канал →", teamHeader: "Филиал басшылығы",
+                newsHeader: "Филиал жаңалықтары", allNewsLink: "Telegram-канал →", teamHeader: "Филиал командасы",
                 leaderTitle: "Филиал төрағасы", leaderLoc: "СҚО, Петропавл қ.", modalTitle: "Партияға қосылу өтініші",
                 labelFio: "Толық Т.А.Ә.", labelPhone: "Телефон нөмірі (WhatsApp)", labelIin: "ЖСН (міндетті емес)", labelRegion: "СҚО ауданы / қаласы", submitBtn: "Сауалнаманы жіберу",
                 recModalTitle: "СҚО қоғамдық қабылдау бөлмесі", recLabelFio: "Толық Т.А.Ә.", recLabelPhone: "Телефон нөмірі (WhatsApp)",
@@ -559,6 +669,73 @@
             });
         }
 
+        function renderTeam() {
+            const teamContainer = document.getElementById('teamList');
+            if (!teamContainer) return;
+
+            const filtered = activeTeamTab === 'all' 
+                ? teamMembers 
+                : teamMembers.filter(m => m.roleCategory === activeTeamTab);
+
+            if (filtered.length === 0) {
+                teamContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-400 text-xs">
+                        ${currentLang === 'ru' ? 'Раздел пополняется информацией' : 'Ақпарат жаңартылуда'}
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(m => {
+                const initials = m.fio[currentLang]
+                    .split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('');
+
+                const bgGradient = m.isLeader 
+                    ? 'bg-gradient-to-tr from-baytaq to-emerald-600 text-white' 
+                    : 'bg-emerald-100 text-baytaq-dark font-bold';
+
+                html += `
+                    <div class="flex items-center space-x-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-baytaq transition">
+                        <div class="w-12 h-12 rounded-full ${bgGradient} flex-shrink-0 flex items-center justify-center text-sm font-bold shadow-sm">
+                            ${initials}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center space-x-1.5">
+                                <h3 class="font-bold text-xs text-gray-900 truncate">${m.fio[currentLang]}</h3>
+                                <span class="text-[9px] bg-emerald-100 text-baytaq px-1.5 py-0.2 rounded font-semibold flex-shrink-0">
+                                    ${m.badge[currentLang]}
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-baytaq-dark font-medium leading-tight mt-0.5">${m.title[currentLang]}</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">📍 ${m.loc[currentLang]}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            teamContainer.innerHTML = html;
+        }
+
+        function switchTeamTab(tabKey) {
+            activeTeamTab = tabKey;
+            
+            document.querySelectorAll('.team-tab').forEach(btn => {
+                btn.classList.remove('bg-baytaq', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-gray-100', 'text-gray-600');
+                activeBtn.classList.add('bg-baytaq', 'text-white');
+            }
+
+            renderTeam();
+        }
+
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'kk' : 'ru';
             const t = translations[currentLang];
@@ -567,6 +744,12 @@
                 const el = document.getElementById(key);
                 if (el) el.innerText = t[key];
             }
+
+            // Перевод вкладок команды
+            document.getElementById('tab-all').innerText = currentLang === 'ru' ? 'Все' : 'Барлығы';
+            document.getElementById('tab-leadership').innerText = currentLang === 'ru' ? 'Руководство' : 'Басшылық';
+            document.getElementById('tab-politburo').innerText = currentLang === 'ru' ? 'Политбюро' : 'Саяси бюро';
+            document.getElementById('tab-ppo').innerText = currentLang === 'ru' ? 'ППО / Районы' : 'БПҰ / Аудандар';
 
             document.getElementById('recInputText').placeholder = currentLang === 'ru' ? 'Опишите проблему...' : 'Мәселені сипаттаңыз...';
             document.getElementById('recInputIin').placeholder = currentLang === 'ru' ? 'Необязательно' : 'Міндетті емес';
@@ -580,7 +763,6 @@
                 document.getElementById('recFileName').innerText = t.recFileNameDefault;
             }
 
-            // Перевод инструкции по взносам
             const stepsEl = document.getElementById('lblInstructionSteps');
             if (stepsEl) {
                 if (currentLang === 'kk') {
@@ -603,6 +785,7 @@
             renderOfferText();
             renderSelects();
             renderNews();
+            renderTeam();
 
             if (currentNewsIndex !== null) {
                 openNewsModal(currentNewsIndex);
@@ -910,6 +1093,7 @@
 
         renderOfferText();
         renderSelects();
+        renderTeam();
         fetchTelegramNews();
 
         if ('serviceWorker' in navigator) {
