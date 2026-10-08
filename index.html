@@ -53,10 +53,14 @@
     <!-- Главный контент -->
     <main class="p-4 max-w-lg mx-auto space-y-5">
         
-        <!-- Приветственный баннер -->
+        <!-- Приветственный баннер с полным юридическим наименованием -->
         <div class="bg-baytaq-light border border-emerald-100 rounded-2xl p-5 text-center relative overflow-hidden">
-            <h1 id="bannerTitle" class="text-xl font-bold text-baytaq-dark mb-1">Северо-Казахстанский филиал</h1>
-            <p id="bannerSub" class="text-xs text-gray-600 mb-4">Партия зеленых «Байтақ»</p>
+            <h1 id="bannerTitle" class="text-xs sm:text-sm font-extrabold text-baytaq-dark uppercase tracking-tight mb-1 leading-snug">
+                СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ
+            </h1>
+            <p id="bannerSub" class="text-[11px] sm:text-xs font-bold text-emerald-800 uppercase tracking-tight mb-4 leading-normal">
+                ОО "КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ""
+            </p>
             <button onclick="toggleJoinModal(true)" id="bannerBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition">
                 Присоединиться к партии
             </button>
@@ -198,7 +202,7 @@
                     <textarea id="recInputText" rows="2" required placeholder="Опишите проблему..." class="w-full border rounded-lg p-2 text-xs mt-0.5 focus:ring-1 focus:ring-baytaq outline-none"></textarea>
                 </div>
 
-                <!-- Кастомный переводимый блок выбора файла -->
+                <!-- Блок выбора файла -->
                 <div>
                     <label id="recLabelFile" class="text-[11px] font-semibold text-gray-600">📷 Прикрепить фото или видео (необязательно):</label>
                     <div class="flex items-center space-x-2 mt-0.5">
@@ -327,8 +331,10 @@
 
         const translations = {
             ru: {
-                langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить", bannerTitle: "Северо-Казахстанский филиал",
-                bannerSub: "Партия зеленых «Байтақ»", bannerBtn: "Присоединиться к партии", receptionTitle: "Карта / Приемная",
+                langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить", 
+                bannerTitle: "СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ",
+                bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"", 
+                bannerBtn: "Присоединиться к партии", receptionTitle: "Карта / Приемная",
                 receptionSub: "Подать обращение", donateTitle: "Взнос / QR", donateSub: "Поддержать филиал",
                 newsHeader: "Новости филиала", allNewsLink: "Telegram-канал →", teamHeader: "Руководство филиала",
                 leaderTitle: "Председатель филиала", leaderLoc: "СКО, г. Петропавловск", modalTitle: "Заявка на вступление",
@@ -341,8 +347,10 @@
                 recBtnFileText: "Выберите файл", recFileNameDefault: "Файл не выбран", offerCloseBtn: "Понятно", offerTitle: "Пользовательское соглашение и Оферта"
             },
             kk: {
-                langBtn: "РУС", joinHeaderBtn: "+ Қосылу", bannerTitle: "Солтүстік Қазақстан филиалы",
-                bannerSub: "«Байтақ» жасылдар партиясы", bannerBtn: "Партияға қосылу", receptionTitle: "Карта / Қабылдау",
+                langBtn: "РУС", joinHeaderBtn: "+ Қосылу", 
+                bannerTitle: "СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫ",
+                bannerSub: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ", 
+                bannerBtn: "Партияға қосылу", receptionTitle: "Карта / Қабылдау",
                 receptionSub: "Өтініш жіберу", donateTitle: "Жарна / QR", donateSub: "Филиалды қолдау",
                 newsHeader: "Филиал жаңалықтары", allNewsLink: "Telegram-канал →", teamHeader: "Филиал басшылығы",
                 leaderTitle: "Филиал төрағасы", leaderLoc: "СҚО, Петропавл қ.", modalTitle: "Партияға қосылу өтініші",
