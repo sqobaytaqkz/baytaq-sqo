@@ -81,7 +81,7 @@
         </div>
 
         <!-- Раздел Новости -->
-        <div class="space-y-3">
+        <div id="newsSection" class="space-y-3">
             <div class="flex justify-between items-center">
                 <h2 id="newsHeader" class="font-bold text-sm text-gray-900">Новости филиала</h2>
                 <a href="https://t.me/sqo_baytaq" target="_blank" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline">Telegram-канал →</a>
@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <!-- Полноценный раздел «Команда / Партиялық құрам» -->
+        <!-- Раздел «Команда / Партиялық құрам» -->
         <div id="teamSection" class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 id="teamHeader" class="font-bold text-sm text-gray-900">Команда филиала</h2>
@@ -359,9 +359,9 @@
         <a href="#" class="flex flex-col items-center text-baytaq font-bold">
             <span class="text-lg">🏠</span><span id="navHome">Главная</span>
         </a>
-      <a href="#newsContainer" class="flex flex-col items-center hover:text-baytaq">
-    <span class="text-lg">📰</span><span id="navNews">Новости</span>
-</a>
+        <a href="#newsSection" class="flex flex-col items-center hover:text-baytaq">
+            <span class="text-lg">📰</span><span id="navNews">Новости</span>
+        </a>
         <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq">
             <span class="text-lg">🗺️</span><span id="navRec">Приемная</span>
         </a>
@@ -862,7 +862,7 @@
             const cleanPhone = cleanPhoneNumber(phone);
             const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Здравствуйте! По поводу вашей заявки на вступление в партию Байтақ...')}`;
 
-            const text = `📥 *ПАРТИЯҒА ҚОСЫЛУ / ЗАЯВКА НА ВСТУПЛЕНИЕ*\n\n` +
+            const text = `📥 *ПАРТИЯҒА ҚОСЫЛУ / ЗАYAВКА НА ВСТУПЛЕНИЕ*\n\n` +
                          `👤 *ФИО:* ${fio}\n` +
                          `📞 *Тел:* ${phone}\n` +
                          `🪪 *ИИН:* ${iin}\n` +
@@ -999,11 +999,21 @@
         function renderNews() {
             const container = document.getElementById('newsContainer');
             if (!rawNewsData || rawNewsData.length === 0) return;
+            
             let html = '';
             rawNewsData.slice(0, 5).forEach((item, index) => {
                 let fullText = item.description.replace(/<[^>]*>?/gm, '');
                 let parts = fullText.split(/─── 🌿 ───|---|───/);
-                let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
+                
+                let textKk = (parts[0] || fullText).trim();
+                let textRu = (parts[1] || parts[0] || fullText).trim();
+                
+                item.parsedText = {
+                    kk: textKk,
+                    ru: textRu
+                };
+
+                let displayText = item.parsedText[currentLang];
                 let title = displayText.split('\n')[0] || displayText.slice(0, 80);
 
                 html += `
@@ -1025,16 +1035,21 @@
         function renderFallbackNews() {
             const container = document.getElementById('newsContainer');
             const isRu = currentLang === 'ru';
-            const fallbackTitle = isRu 
-                ? 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями' 
-                : '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде';
+            const fallbackTitleRu = 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями';
+            const fallbackTitleKk = '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде';
             
             rawNewsData = [{
-                title: fallbackTitle,
-                description: fallbackTitle,
+                title: isRu ? fallbackTitleRu : fallbackTitleKk,
+                description: isRu ? fallbackTitleRu : fallbackTitleKk,
+                parsedText: {
+                    ru: fallbackTitleRu,
+                    kk: fallbackTitleKk
+                },
                 pubDate: new Date().toISOString(),
                 link: 'https://t.me/sqo_baytaq'
             }];
+
+            const currentTitle = isRu ? fallbackTitleRu : fallbackTitleKk;
 
             container.innerHTML = `
                 <div onclick="openNewsModal(0)" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer active:scale-95 transition">
@@ -1042,7 +1057,7 @@
                     <div class="flex flex-col justify-between overflow-hidden">
                         <div>
                             <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
-                            <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${fallbackTitle}</h3>
+                            <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${currentTitle}</h3>
                         </div>
                         <span class="text-[10px] text-gray-400 mt-1">Официально</span>
                     </div>
@@ -1055,9 +1070,9 @@
             const item = rawNewsData[index];
             if (!item) return;
 
-            let fullText = item.description.replace(/<[^>]*>?/gm, '');
-            let parts = fullText.split(/─── 🌿 ───|---|───/);
-            let displayText = (currentLang === 'kk' ? (parts[0] || fullText) : (parts[1] || parts[0] || fullText)).trim();
+            let displayText = (item.parsedText && item.parsedText[currentLang]) 
+                ? item.parsedText[currentLang] 
+                : item.description.replace(/<[^>]*>?/gm, '');
 
             document.getElementById('newsModalDate').innerText = item.pubDate ? new Date(item.pubDate).toLocaleDateString() : 'Официально';
             document.getElementById('newsModalBody').innerText = displayText;
@@ -1068,8 +1083,10 @@
         function shareNewsViaWhatsApp() {
             if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
             const item = rawNewsData[currentNewsIndex];
-            let fullText = item.description.replace(/<[^>]*>?/gm, '');
-            let title = fullText.split('\n')[0] || 'SQO BAYTAQ';
+            let displayText = (item.parsedText && item.parsedText[currentLang]) 
+                ? item.parsedText[currentLang] 
+                : item.description.replace(/<[^>]*>?/gm, '');
+            let title = displayText.split('\n')[0] || 'SQO BAYTAQ';
             const shareText = `📰 *${title}*\n\nЧитать подробно в PWA-приложении партии «Байтақ» СКО: ${window.location.href}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
         }
@@ -1077,8 +1094,10 @@
         function shareNewsNative() {
             if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
             const item = rawNewsData[currentNewsIndex];
-            let fullText = item.description.replace(/<[^>]*>?/gm, '');
-            let title = fullText.split('\n')[0] || 'SQO BAYTAQ';
+            let displayText = (item.parsedText && item.parsedText[currentLang]) 
+                ? item.parsedText[currentLang] 
+                : item.description.replace(/<[^>]*>?/gm, '');
+            let title = displayText.split('\n')[0] || 'SQO BAYTAQ';
 
             if (navigator.share) {
                 navigator.share({
