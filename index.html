@@ -537,7 +537,7 @@
             ru: {
                 langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить", 
                 bannerTitle: "СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ",
-                bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ "БАЙТАҚ\"\"", 
+                bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"", 
                 bannerBtn: "Присоединиться к партии", receptionTitle: "Карта / Приемная",
                 receptionSub: "Подать обращение", donateTitle: "Взнос / Реквизиты", donateSub: "Поддержать филиал",
                 newsHeader: "Новости филиала", allNewsLink: "Telegram-канал →", teamHeader: "Команда филиала",
@@ -978,58 +978,83 @@
         }
 
         async function fetchTelegramNews() {
-    const container = document.getElementById('newsContainer');
-    const fallbackKk = '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде';
-    const fallbackRu = 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями';
-    
-    try {
-        // Пробуем получить данные через альтернативный стабильный прокси RSS
-        const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://t.me/s/sqo_baytaq'));
-        const data = await res.json();
-        
-        if (data && data.contents) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data.contents, 'text/html');
-            const messages = doc.querySelectorAll('.tgme_widget_message_text');
-            
-            if (messages && messages.length > 0) {
-                rawNewsData = [];
-                messages.forEach((msg, idx) => {
-                    if (idx < 5) {
-                        const fullText = msg.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]*>?/gm, '');
-                        const dateEl = msg.closest('.tgme_widget_message').querySelector('.tgme_widget_message_date time');
-                        const pubDate = dateEl ? dateEl.getAttribute('datetime') : new Date().toISOString();
+            const fallbackKk = '«Байтақ» партиясының СҚО филиалы тұрғындарға жақынырақ болу үшін PWA-сайт әзірлеуде';
+            const fallbackRu = 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт для прямой связи с жителями';
 
-                        let parts = fullText.split(/─── 🌿 ───|---|───/);
-                        let textKk = (parts[0] || fullText).trim();
-                        let textRu = (parts[1] || parts[0] || fullText).trim();
+            try {
+                const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://t.me/s/sqo_baytaq'));
+                const data = await res.json();
+                
+                if (data && data.contents) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    const messages = doc.querySelectorAll('.tgme_widget_message_text');
+                    
+                    if (messages && messages.length > 0) {
+                        rawNewsData = [];
+                        messages.forEach((msg, idx) => {
+                            if (idx < 5) {
+                                const fullText = msg.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]*>?/gm, '');
+                                const dateEl = msg.closest('.tgme_widget_message').querySelector('.tgme_widget_message_date time');
+                                const pubDate = dateEl ? dateEl.getAttribute('datetime') : new Date().toISOString();
 
-                        rawNewsData.push({
-                            description: fullText,
-                            pubDate: pubDate,
-                            parsedText: { kk: textKk, ru: textRu }
+                                let parts = fullText.split(/─── 🌿 ───|---|───/);
+                                let textKk = (parts[0] || fullText).trim();
+                                let textRu = (parts[1] || parts[0] || fullText).trim();
+
+                                rawNewsData.push({
+                                    description: fullText,
+                                    pubDate: pubDate,
+                                    parsedText: { kk: textKk, ru: textRu }
+                                });
+                            }
                         });
+                        renderNews();
+                        return;
                     }
-                });
+                }
+                throw new Error('Empty');
+            } catch (err) {
+                rawNewsData = [{
+                    description: `${fallbackKk}\n─── 🌿 ───\n${fallbackRu}`,
+                    pubDate: new Date().toISOString(),
+                    link: 'https://t.me/sqo_baytaq',
+                    parsedText: {
+                        kk: fallbackKk,
+                        ru: fallbackRu
+                    }
+                }];
                 renderNews();
-                return;
             }
         }
-        throw new Error('No messages found');
-    } catch (err) {
-        // Если сеть не отвечает, сразу показываем официальную новость-заглушку вместо бесконечной загрузки
-        rawNewsData = [{
-            description: `${fallbackKk}\n─── 🌿 ───\n${fallbackRu}`,
-            pubDate: new Date().toISOString(),
-            link: 'https://t.me/sqo_baytaq',
-            parsedText: {
-                kk: fallbackKk,
-                ru: fallbackRu
-            }
-        }];
-        renderNews();
-    }
-}
+
+        function renderNews() {
+            const container = document.getElementById('newsContainer');
+            if (!rawNewsData || rawNewsData.length === 0) return;
+            
+            let html = '';
+            rawNewsData.forEach((item, index) => {
+                let displayText = (item.parsedText && item.parsedText[currentLang]) 
+                    ? item.parsedText[currentLang] 
+                    : (item.description || '').replace(/<[^>]*>?/gm, '');
+
+                let title = displayText.split('\n')[0] || displayText.slice(0, 80);
+
+                html += `
+                    <div onclick="openNewsModal(${index})" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer active:scale-95 transition">
+                        <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
+                        <div class="flex flex-col justify-between overflow-hidden">
+                            <div>
+                                <span class="text-[10px] bg-emerald-50 text-baytaq px-1.5 py-0.5 rounded font-semibold">@sqo_baytaq</span>
+                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${title}</h3>
+                            </div>
+                            <span class="text-[10px] text-gray-400 mt-1">${new Date(item.pubDate).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
 
         function openNewsModal(index) {
             currentNewsIndex = index;
@@ -1053,7 +1078,7 @@
                 ? item.parsedText[currentLang] 
                 : (item.description || '').replace(/<[^>]*>?/gm, '');
             let title = displayText.split('\n')[0] || 'SQO BAYTAQ';
-            const shareText = `📰 *${title}*\n\nЧитать подробно в PWA-приложении партии «Байтақ» СКО: ${window.location.href}`;
+            const shareText = `📰 *${title}*\n\nЧитать подробно в приложении партии «Байтақ» СКО: ${window.location.href}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
         }
 
