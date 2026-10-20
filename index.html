@@ -1,684 +1,1324 @@
 <!DOCTYPE html>
-<html lang="kk">
+<html lang="kk" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQO BAYTAQ</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#00875A">
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Leaflet.js Интерактивная карта -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SQO BAYTAQ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#053B2C">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        baytaq: {
-                            DEFAULT: '#00875A',
-                            dark: '#006B47',
-                            light: '#E6F3EE',
-                            gold: '#F59E0B'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;0,700;1,700&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<!-- Leaflet: интерактивная карта -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+<style>
+/* ---------- Токены ---------- */
+:root{
+  --forest:#053B2C; --green:#00875A; --spring:#1FCF86; --lime:#C9F26B;
+  --bg:#F2F6F3; --surface:#FFFFFF; --surface-2:#E9F1EC;
+  --text:#10231B; --muted:#5C7067; --line:rgba(16,35,27,.10);
+  --tint:rgba(0,135,90,.10); --on-green:#FFFFFF;
+  --danger:#C2362B; --warn:#9A6400;
+  --display:'Cormorant','Times New Roman','Tinos',Georgia,serif;
+  --body:'Times New Roman','Tinos','Liberation Serif','Noto Serif',Times,serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --dock-h:68px;
+}
+:root[data-theme="dark"]{
+  --bg:#06140F; --surface:#0D2019; --surface-2:#132B22;
+  --text:#E8F4EE; --muted:#8DA69A; --line:rgba(232,244,238,.10);
+  --tint:rgba(31,207,134,.14); --green:#1FCF86; --on-green:#04241A;
+  --danger:#FF8A7D; --warn:#F2C063;
+}
+
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--body);font-size:17px;line-height:1.45;color:var(--text);
+  background:var(--bg);-webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--dock-h) + 36px + env(safe-area-inset-bottom));
+  transition:background .4s,color .4s;
+}
+body.locked{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2.5px solid var(--spring);outline-offset:2px;border-radius:10px}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px}
+
+/* ---------- Шапка ---------- */
+.top{
+  position:sticky;top:0;z-index:40;
+  background:color-mix(in srgb,var(--bg) 78%,transparent);
+  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:58px;gap:10px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0;flex:1;overflow:hidden}
+.brand img{height:34px;width:auto;max-width:100%;object-fit:contain;object-position:left center;display:block}
+.brand-fallback{display:none;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:.02em}
+.brand-fallback i{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--forest),#00A76F)}
+.region{font-size:13px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--tint);color:var(--green)}
+.top-actions{display:flex;align-items:center;gap:6px;flex:none}
+@media(max-width:440px){.region{display:none}.brand-fallback{font-size:17px;letter-spacing:0;gap:6px}.top-actions{gap:5px}}
+@media(max-width:370px){.btn-join{padding:0 11px}.brand-fallback span{display:none}.top .wrap{padding:0 12px;gap:6px}.top-actions{gap:4px}.chip-btn{padding:0 9px}}
+.chip-btn{height:36px;min-width:36px;padding:0 11px;border-radius:99px;border:1px solid var(--line);font-size:14px;font-weight:800;display:grid;place-items:center;transition:transform .2s var(--ease),background .2s}
+.chip-btn:active{transform:scale(.92)}
+.chip-btn svg{width:17px;height:17px}
+.btn-join{height:36px;padding:0 15px;border-radius:99px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#00704B,#00A76F);transition:transform .2s var(--ease)}
+.btn-join:active{transform:scale(.94)}
+:root[data-theme="dark"] .btn-join{color:#04241A;background:linear-gradient(135deg,var(--spring),var(--lime))}
+
+/* ---------- Главный баннер ---------- */
+main{padding-top:16px;display:grid;grid-template-columns:minmax(0,1fr);gap:26px}
+main>*{min-width:0}
+.hero{
+  position:relative;isolation:isolate;overflow:hidden;border-radius:30px;color:#fff;
+  padding:26px 22px 104px;
+  background:linear-gradient(140deg,#053B2C 0%,#00704B 46%,#00A76F 100%);
+}
+.aurora{position:absolute;inset:0;z-index:-2;filter:blur(46px);opacity:.9}
+.aurora span{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform}
+.aurora .a1{width:68%;aspect-ratio:1;left:-18%;top:-30%;background:#1FCF86;animation:drift1 14s ease-in-out infinite alternate}
+.aurora .a2{width:56%;aspect-ratio:1;right:-16%;top:6%;background:#C9F26B;opacity:.62;animation:drift2 17s ease-in-out infinite alternate}
+.aurora .a3{width:62%;aspect-ratio:1;left:22%;bottom:-44%;background:#00C2A8;opacity:.7;animation:drift3 20s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(34%,26%) scale(1.25)}}
+@keyframes drift2{to{transform:translate(-40%,34%) scale(.8)}}
+@keyframes drift3{to{transform:translate(-22%,-36%) scale(1.3)}}
+
+.hero-org{font-size:15px;font-weight:700;opacity:.86;max-width:26ch}
+.wordmark{
+  font-family:var(--display);font-weight:700;font-style:italic;line-height:1;letter-spacing:0;
+  font-size:clamp(64px,23vw,128px);margin:4px 0 0 -4px;display:flex;
+}
+.wordmark span{
+  display:inline-block;color:transparent;padding:.12em .09em .2em .02em;margin-right:-.07em;
+  background:linear-gradient(100deg,#fff 20%,#C9F26B 50%,#fff 80%) 0 0/300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  animation:rise .9s var(--ease) both, sheen 7s linear 1.2s infinite;
+}
+.wordmark span:nth-child(2){animation-delay:.06s,1.2s}
+.wordmark span:nth-child(3){animation-delay:.12s,1.2s}
+.wordmark span:nth-child(4){animation-delay:.18s,1.2s}
+.wordmark span:nth-child(5){animation-delay:.24s,1.2s}
+.wordmark span:nth-child(6){animation-delay:.30s,1.2s}
+@keyframes rise{from{transform:translateY(70%) rotate(6deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes sheen{to{background-position:-300% 0}}
+.hero-sub{font-family:var(--display);font-weight:600;font-size:clamp(20px,6vw,26px);line-height:1.15;max-width:18ch;animation:fadeUp .8s var(--ease) .45s both}
+.hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;animation:fadeUp .8s var(--ease) .6s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:16px;font-weight:800;font-size:17px;transition:transform .2s var(--ease),filter .2s}
+.btn:active{transform:scale(.96)}
+.btn[disabled]{opacity:.6;pointer-events:none}
+.btn-lime{position:relative;overflow:hidden;background:var(--lime);color:#053B2C}
+.btn-lime::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);transform:translateX(-120%);animation:shine 4.5s ease-in-out 2s infinite}
+@keyframes shine{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.btn-glass{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.btn-primary{width:100%;color:#fff;background:linear-gradient(135deg,#00704B,#00A76F)}
+:root[data-theme="dark"] .btn-primary{color:#04241A;background:linear-gradient(135deg,var(--spring),var(--lime))}
+.btn-soft{background:var(--tint);color:var(--green)}
+
+/* Линия горизонта: степные волны */
+.horizon{position:absolute;left:0;bottom:-1px;width:200%;height:92px;z-index:-1;pointer-events:none}
+.horizon.h1{animation:flow 26s linear infinite;opacity:.20}
+.horizon.h2{animation:flow 18s linear infinite reverse;opacity:.16;height:70px}
+.horizon.h3{animation:flow 34s linear infinite;opacity:.9;height:46px}
+.horizon.h3 path{fill:var(--bg);transition:fill .4s}
+@keyframes flow{to{transform:translateX(-50%)}}
+
+/* ---------- Быстрые действия ---------- */
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:-66px;position:relative;z-index:2;padding:0 10px}
+.quick button{
+  text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;
+  display:grid;gap:10px;transition:transform .25s var(--ease),border-color .25s,background .4s;
+  box-shadow:0 14px 30px -18px rgba(5,59,44,.45);
+}
+.quick button:active{transform:scale(.96)}
+.quick .ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#00704B,#1FCF86)}
+.quick .ico.alt{background:linear-gradient(135deg,#00A76F,#C9F26B);color:#053B2C}
+.quick b{display:block;font-size:17px;font-weight:800;line-height:1.25}
+.quick small{display:block;font-size:15px;color:var(--muted);margin-top:2px}
+
+/* ---------- Секции ---------- */
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+h2,.feature h3,.panel-head h3,.sub-h,.hero-sub{font-variant-numeric:lining-nums}
+h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:0;line-height:1.1}
+.link-btn{font-size:15px;font-weight:800;color:var(--green);padding:8px 12px;border-radius:12px;background:var(--tint);white-space:nowrap;transition:transform .2s var(--ease)}
+.link-btn:active{transform:scale(.95)}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- Новости ---------- */
+.news-list{display:grid;gap:10px}
+.feature{position:relative;display:block;width:100%;text-align:left;border-radius:26px;overflow:hidden;min-height:230px;color:#fff;background:linear-gradient(140deg,#053B2C,#00875A 60%,#1FCF86);transition:transform .25s var(--ease)}
+.feature:active,.row:active{transform:scale(.98)}
+.feature img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.feature::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,59,44,0) 25%,rgba(3,30,22,.88) 100%)}
+.feature .leaf{position:absolute;right:-18px;top:-18px;width:150px;height:150px;opacity:.16;stroke-width:1}
+.feature-body{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:18px}
+.feature h3{font-family:var(--display);font-size:26px;font-weight:700;line-height:1.12;margin-top:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.tag{padding:3px 9px;border-radius:99px;background:var(--tint);color:var(--green);font-weight:800;font-size:14px}
+.feature .tag{background:var(--lime);color:#053B2C}
+.feature .date{opacity:.85}
+.row{display:flex;gap:12px;width:100%;text-align:left;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:10px;transition:transform .25s var(--ease),background .4s}
+.thumb{width:68px;height:68px;border-radius:14px;flex:none;overflow:hidden;display:grid;place-items:center;color:var(--green);background:var(--tint)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.row-body{min-width:0;flex:1}
+.row h3{font-size:16px;font-weight:700;line-height:1.35;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .date{color:var(--muted)}
+.pop{animation:fadeUp .6s var(--ease) both}
+.empty{text-align:center;padding:26px 18px;border:1px dashed var(--line);border-radius:22px;color:var(--muted);font-size:16px;display:grid;gap:12px;justify-items:center}
+
+.sk{border-radius:20px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface) 45%,var(--surface-2) 65%) 0 0/300% 100%;animation:shimmer 1.4s linear infinite}
+.sk.big{height:230px;border-radius:26px}.sk.sm{height:88px}
+@keyframes shimmer{to{background-position:-300% 0}}
+
+/* ---------- Команда ---------- */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 14px;border-radius:99px;font-size:15px;font-weight:700;white-space:nowrap;background:var(--surface);border:1px solid var(--line);color:var(--muted);transition:background .25s,color .25s,transform .2s var(--ease)}
+.tab:active{transform:scale(.94)}
+.tab.on{background:var(--green);border-color:transparent;color:var(--on-green);font-weight:800}
+.team{display:grid;gap:10px}
+.member{display:flex;align-items:center;gap:14px;padding:12px;border-radius:20px;background:var(--surface);border:1px solid var(--line);transition:background .4s}
+.avatar{width:52px;height:52px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:18px;color:var(--green);background:var(--tint)}
+.avatar.lead{color:#fff;background:conic-gradient(from 210deg,#053B2C,#00A76F,#C9F26B,#00A76F,#053B2C);position:relative}
+.avatar.lead::before{content:"";position:absolute;inset:3px;border-radius:50%;background:linear-gradient(135deg,#00704B,#00A76F)}
+.avatar.lead span{position:relative}
+.member h3{font-size:17px;font-weight:800;line-height:1.3}
+.member p{font-size:15px;color:var(--green);font-weight:600}
+.member small{font-size:14px;color:var(--muted)}
+
+.foot{font-size:14px;color:var(--muted);text-align:center;display:grid;gap:8px;justify-items:center;padding:4px 10px 0}
+.foot a{color:var(--green);font-weight:800;display:inline-flex;gap:6px;align-items:center}
+
+/* ---------- Нижняя навигация ---------- */
+.dock{
+  position:fixed;left:50%;transform:translateX(-50%);z-index:30;
+  bottom:calc(12px + env(safe-area-inset-bottom));width:min(488px,calc(100% - 24px));height:var(--dock-h);
+  display:flex;align-items:stretch;padding:6px;border-radius:26px;
+  background:color-mix(in srgb,var(--surface) 82%,transparent);
+  backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);
+  border:1px solid var(--line);box-shadow:0 18px 40px -16px rgba(5,59,44,.5);
+}
+.dock button{flex:1 1 auto;min-width:0;padding:0 5px;border-radius:20px;display:grid;place-items:center;align-content:center;gap:3px;font-size:13px;font-weight:700;color:var(--muted);transition:color .25s,background .3s,transform .2s var(--ease)}
+.dock button:active{transform:scale(.9)}
+.dock button.on{color:var(--green);background:var(--tint)}
+@media(max-width:350px){.dock{padding:4px}.dock button{font-size:12px;padding:0 3px}}
+.dock button svg{transition:transform .35s var(--ease)}
+.dock button.on svg{transform:translateY(-1px) scale(1.12)}
+
+/* ---------- Выезжающие окна ---------- */
+.sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,22,16,0);visibility:hidden;transition:background .35s,visibility 0s .35s}
+.sheet.open{visibility:visible;background:rgba(3,22,16,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .35s}
+.panel{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:var(--surface);border-radius:28px 28px 0 0;padding:10px 20px calc(22px + env(safe-area-inset-bottom));transform:translateY(102%);transition:transform .45s var(--ease)}
+.sheet.open .panel{transform:none}
+.grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panel-head h3{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:0;line-height:1.1}
+.x{width:38px;height:38px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;flex:none;transition:transform .3s var(--ease)}
+.x:active{transform:rotate(90deg) scale(.9)}
+@media(min-width:560px){.sheet{align-items:center;padding:16px}.panel{border-radius:28px;transform:translateY(30px) scale(.96);opacity:0;transition:transform .4s var(--ease),opacity .3s}.sheet.open .panel{opacity:1}.grab{display:none}.panel{padding-top:22px}}
+
+/* ---------- Формы ---------- */
+form{display:grid;gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:grid;gap:5px;font-size:15px;font-weight:700;color:var(--muted);min-width:0}
+.f input,.f select,.f textarea{width:100%;min-width:0;padding:12px 13px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);font-size:17px;font-weight:500;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--green);box-shadow:0 0 0 4px var(--tint)}
+.f textarea{resize:vertical;min-height:76px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--muted);line-height:1.4}
+.consent input{width:20px;height:20px;flex:none;accent-color:#00875A;margin-top:1px}
+#map{height:190px;border-radius:18px;border:1px solid var(--line);z-index:0;background:var(--surface-2)}
+.map-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+.map-row span{font-size:15px;font-weight:700;color:var(--muted)}
+.mini{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:800;color:var(--green);background:var(--tint);padding:8px 12px;border-radius:12px;white-space:nowrap}
+.mini svg{width:16px;height:16px}
+.pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:linear-gradient(135deg,#00704B,#1FCF86);border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+
+.filters{display:grid;gap:10px;padding:12px;border-radius:18px;background:var(--surface-2);margin-bottom:14px}
+.filters .tabs{margin:0;padding:0}
+.filters .tab{padding:7px 12px}
+.date-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:15px;font-weight:700;color:var(--muted)}
+.date-row input{padding:7px 9px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:15px}
+.date-row div{display:flex;gap:6px}
+
+.bank{padding:16px;border-radius:20px;color:#fff;background:linear-gradient(140deg,#053B2C,#00875A 70%,#1FCF86);display:grid;gap:12px;margin-bottom:14px}
+.bank b{font-size:15px;line-height:1.4;opacity:.9}
+.bank dl{display:grid;gap:8px}
+.bank dt{font-size:14px;opacity:.7;font-weight:700}
+.bank dd{font-weight:700;font-size:19px;letter-spacing:.04em;word-break:break-all;user-select:all}
+.bank .mini{background:var(--lime);color:#053B2C;justify-self:start}
+
+.article-img{width:100%;border-radius:18px;margin-bottom:14px;display:block;max-height:300px;object-fit:cover}
+.article{white-space:pre-line;font-size:17px;line-height:1.6;overflow-wrap:anywhere}
+.share{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.share .btn{height:46px;font-size:16px}
+
+a.btn{text-decoration:none}
+.wa-direct{width:100%;height:46px;margin-bottom:14px;font-size:16px}
+.wa-num{font-weight:400;opacity:.85}
+@media(max-width:350px){.wa-num{display:none}}
+
+/* ---------- Админ ---------- */
+.chip-btn.on{background:var(--green);border-color:transparent;color:var(--on-green)}
+.note{display:grid;gap:10px;justify-items:start;padding:13px 14px;border-radius:16px;font-size:15px;line-height:1.4;background:rgba(201,242,107,.28);border:1px solid rgba(154,100,0,.25);margin-bottom:16px}
+:root[data-theme="dark"] .note{background:rgba(201,242,107,.10);border-color:rgba(201,242,107,.25)}
+.hint{font-size:14px;color:var(--muted);line-height:1.35}
+.form-err{font-size:15px;font-weight:700;color:var(--danger)}
+.form-err:empty{display:none}
+.photo-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative}
+.photo-row input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.photo-row label{cursor:pointer}
+.photo-row:has(input[type=file]:focus-visible) label{outline:2.5px solid var(--spring);outline-offset:2px}
+.photo-prev{width:100%;max-height:180px;object-fit:cover;border-radius:14px;display:block}
+.photo-prev[hidden]{display:none}
+.sub-h{font-family:var(--display);font-weight:700;font-size:22px;margin:22px 0 10px}
+.alist{display:grid;gap:8px}
+.arow{display:flex;align-items:center;gap:10px;padding:8px;border-radius:16px;border:1px solid var(--line);background:var(--bg)}
+.arow .thumb{width:50px;height:50px;border-radius:12px}
+.arow b{font-size:16px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.arow small{font-size:14px;color:var(--muted)}
+.arow .grow{flex:1;min-width:0}
+.ibtn{width:40px;height:40px;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--tint);color:var(--green);font-size:14px;font-weight:700;transition:transform .2s var(--ease)}
+.ibtn:active{transform:scale(.9)}
+.ibtn.del{background:rgba(194,54,43,.12);color:var(--danger)}
+.ibtn.armed{width:auto;padding:0 12px;background:var(--danger);color:#fff}
+:root[data-theme="dark"] .ibtn.armed{color:#2A0906}
+.btn-ghost{width:100%;border:1.5px solid var(--line);color:var(--muted);margin-top:18px}
+[hidden]{display:none!important}
+
+/* ---------- Уведомления и установка ---------- */
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));z-index:90;transform:translate(-50%,-30px);opacity:0;pointer-events:none;max-width:min(440px,calc(100% - 32px));padding:13px 18px;border-radius:16px;background:#053B2C;color:#fff;font-size:16px;font-weight:700;display:flex;gap:10px;align-items:center;box-shadow:0 16px 36px -12px rgba(0,0,0,.5);transition:transform .45s var(--ease),opacity .3s}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.toast.warn{background:#7A4E00}.toast.error{background:#8F231A}
+.install{position:fixed;left:50%;transform:translate(-50%,160%);z-index:35;bottom:calc(var(--dock-h) + 24px + env(safe-area-inset-bottom));width:min(488px,calc(100% - 24px));padding:12px 12px 12px 14px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 18px 40px -14px rgba(5,59,44,.55);display:flex;align-items:center;gap:12px;visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
+.install.show{transform:translate(-50%,0);visibility:visible;transition:transform .5s var(--ease)}
+.install .ico{width:42px;height:42px;border-radius:14px;flex:none;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#00704B,#1FCF86)}
+.install b{display:block;font-size:16px;line-height:1.25}
+.install small{font-size:14px;color:var(--muted)}
+.install .btn{height:40px;padding:0 14px;font-size:15px;width:auto;margin-left:auto}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800 pb-24 font-sans antialiased">
+<body>
 
-    <!-- Шапка сайта -->
-    <header class="bg-white border-b border-gray-100 p-3 shadow-sm sticky top-0 z-40 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <img src="logo.png" alt="Байтақ" class="h-9 w-auto object-contain" onerror="this.src='https://via.placeholder.com/120x40/00875A/FFFFFF?text=BAYTAQ'">
-            <span class="text-[10px] font-bold bg-baytaq-light text-baytaq px-2 py-0.5 rounded-full uppercase tracking-wider">
-                СҚО
-            </span>
-        </div>
-        
-        <div class="flex items-center space-x-2">
-            <button onclick="toggleLanguage()" id="langBtn" class="border border-emerald-600 text-baytaq font-bold px-2.5 py-1 rounded-full text-xs shadow-sm hover:bg-baytaq-light transition">
-                РУС
-            </button>
-            <button onclick="toggleJoinModal(true)" id="joinHeaderBtn" class="bg-baytaq hover:bg-baytaq-dark text-white font-bold px-3.5 py-1.5 rounded-full text-xs shadow-sm transition">
-                + Қосылу
-            </button>
-        </div>
-    </header>
+<!-- Набор иконок -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 16h3"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-8-4.9-8-11A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6.1-8 11-8 11z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.5M8.2 13.2l7.6 4.5"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.6-5A8.5 8.5 0 1 1 21 11.5z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></symbol>
+  <symbol id="i-admin" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><circle cx="12" cy="10" r="2.2"/><path d="M8.5 16a3.6 3.6 0 0 1 7 0"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18l5.5-5 4 3.5 2.5-2 4 3.5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+</svg>
 
-    <!-- Главный контент -->
-    <main class="p-4 max-w-lg mx-auto space-y-5">
-        
-        <!-- Приветственный баннер -->
-        <div class="bg-baytaq-light border border-emerald-100 rounded-2xl p-5 text-center relative overflow-hidden">
-            <h1 id="bannerTitle" class="text-xs sm:text-sm font-extrabold text-baytaq-dark uppercase tracking-tight mb-1 leading-snug">
-                СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫ
-            </h1>
-            <p id="bannerSub" class="text-[11px] sm:text-xs font-bold text-emerald-800 uppercase tracking-tight mb-4 leading-normal">
-                "ҚАЗАҚСТАННЫҢ "БАЙТАҚ" ЖАСЫЛДАР ПАРТИЯСЫ" ҚБ
-            </p>
-            <button onclick="toggleJoinModal(true)" id="bannerBtn" class="w-full bg-baytaq hover:bg-baytaq-dark text-white py-3 rounded-xl font-bold text-sm shadow transition">
-                Партияға қосылу
-            </button>
-        </div>
-
-        <!-- Быстрый доступ -->
-        <div class="grid grid-cols-2 gap-3">
-            <div onclick="toggleRecModal(true)" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition hover:border-baytaq">
-                <span class="text-2xl block mb-1">🗺️</span>
-                <span id="receptionTitle" class="font-bold text-sm text-gray-800 block">Карта / Қабылдау</span>
-                <span id="receptionSub" class="text-[11px] text-gray-500">Өтініш жіберу</span>
-            </div>
-            <div onclick="toggleDonateModal(true)" class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition hover:border-baytaq">
-                <span class="text-2xl block mb-1">💚</span>
-                <span id="donateTitle" class="font-bold text-sm text-gray-800 block">Жарна / Деректемелер</span>
-                <span id="donateSub" class="text-[11px] text-gray-500">Филиалды қолдау</span>
-            </div>
-        </div>
-
-        <!-- Раздел Новости -->
-        <div id="newsSection" class="space-y-3">
-            <div class="flex justify-between items-center">
-                <h2 id="newsHeader" class="font-bold text-sm text-gray-900">Филиал жаңалықтары</h2>
-                <button onclick="openArchiveModal(true)" id="allNewsLink" class="text-xs text-baytaq font-semibold hover:underline bg-emerald-50 px-2.5 py-1 rounded-lg">Барлық жаңалықтар (Мұрағат) →</button>
-            </div>
-            <div id="newsContainer" class="space-y-3">
-                <div class="bg-white rounded-xl p-4 text-center border border-gray-100 text-xs text-gray-400">
-                    Жаңалықтар жүктелуде...
-                </div>
-            </div>
-        </div>
-
-        <!-- Раздел «Команда» -->
-        <div id="teamSection" class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h2 id="teamHeader" class="font-bold text-sm text-gray-900">Филиал командасы</h2>
-                <span class="text-[10px] bg-emerald-50 text-baytaq px-2 py-0.5 rounded font-bold">СҚО</span>
-            </div>
-
-            <div class="flex space-x-1.5 overflow-x-auto pb-1 text-[11px] no-scrollbar">
-                <button onclick="switchTeamTab('all')" id="tab-all" class="team-tab bg-baytaq text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition">Барлығы</button>
-                <button onclick="switchTeamTab('leadership')" id="tab-leadership" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">Басшылық</button>
-                <button onclick="switchTeamTab('politburo')" id="tab-politburo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">Саяси бюро</button>
-                <button onclick="switchTeamTab('ppo')" id="tab-ppo" class="team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition">БПҰ / Аудандар</button>
-            </div>
-
-            <div id="teamList" class="space-y-3"></div>
-        </div>
-
-    </main>
-
-    <!-- Всплывающий баннер для установки PWA -->
-    <div id="pwaInstallBanner" class="fixed bottom-16 left-4 right-4 bg-white border border-emerald-200 rounded-2xl p-4 shadow-xl hidden z-50 flex items-center justify-between space-x-3">
-        <div class="flex items-center space-x-3">
-            <span class="text-3xl">🌱</span>
-            <div>
-                <h4 id="pwaTitle" class="font-bold text-xs text-gray-900">«Baytaq SQO» қолданбасын орнатыңыз</h4>
-                <p id="pwaSub" class="text-[10px] text-gray-500">Жылдам қолжетімділік пен офлайн жұмыс үшін</p>
-            </div>
-        </div>
-        <div class="flex space-x-2">
-            <button onclick="installPWA()" id="pwaInstallBtn" class="bg-baytaq text-white text-xs font-bold px-3 py-2 rounded-xl shadow">Орнату</button>
-            <button onclick="closeInstallBanner()" class="text-gray-400 font-bold text-lg px-1">&times;</button>
-        </div>
+<!-- Шапка -->
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <img src="logo.png" alt="Байтақ" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <span class="brand-fallback"><i><svg class="i"><use href="#i-leaf"/></svg></i><span>BAYTAQ</span></span>
+      <span class="region" data-i18n="regionShort">СҚО</span>
     </div>
-
-    <!-- Модальное окно: Архив новостей -->
-    <div id="archiveModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="archiveTitleModal" class="font-bold text-base text-baytaq-dark">Жаңалықтар мұрағаты</h3>
-                <button onclick="openArchiveModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
-            </div>
-
-            <div class="space-y-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                <div class="flex space-x-1 overflow-x-auto pb-1 text-[11px] no-scrollbar">
-                    <button onclick="filterByTag('all')" id="tag-btn-all" class="tag-filter bg-baytaq text-white px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition">Барлығы</button>
-                    <button onclick="filterByTag('#news')" id="tag-btn-news" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#news</button>
-                    <button onclick="filterByTag('#jkh')" id="tag-btn-jkh" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#jkh</button>
-                    <button onclick="filterByTag('#eco')" id="tag-btn-eco" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#eco</button>
-                    <button onclick="filterByTag('#announcement')" id="tag-btn-announcement" class="tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition">#announcement</button>
-                </div>
-                <div class="flex items-center justify-between pt-1 border-t border-emerald-200">
-                    <span id="lblFilterDate" class="text-[10px] font-bold text-emerald-900">Күнтізбе:</span>
-                    <div class="flex space-x-1.5">
-                        <input type="date" id="newsDateFilter" onchange="applyFilters()" class="border border-emerald-300 rounded-lg p-1 text-xs bg-white text-gray-700 outline-none">
-                        <button onclick="resetFilters()" id="resetBtn" class="bg-white border border-gray-300 text-gray-600 px-2 py-1 rounded-lg text-xs font-semibold">Тазарту</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="archiveContainer" class="space-y-3"></div>
-        </div>
+    <div class="top-actions">
+      <button class="chip-btn" id="langBtn" onclick="toggleLanguage()" aria-label="Тіл / Язык">РУС</button>
+      <button class="chip-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Тақырып / Тема"><svg class="i"><use href="#i-moon"/></svg></button>
+      <button class="chip-btn" id="adminBtn" onclick="openAdmin()" aria-label="Админ" title="Админ"><svg class="i"><use href="#i-admin"/></svg></button>
+      <button class="btn-join" onclick="openSheet('joinModal')" data-i18n="joinHeaderBtn">Қосылу</button>
     </div>
+  </div>
+</header>
 
-    <!-- Модальное окно: Вступить -->
-    <div id="joinModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="joinModalTitle" class="font-bold text-lg text-baytaq-dark">Партияға қосылу өтініші</h3>
-                <button onclick="toggleJoinModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
-            </div>
-            <form id="joinForm" onsubmit="submitJoinForm(event)" class="space-y-3">
-                <div>
-                    <label id="lblFio" class="text-xs font-semibold text-gray-600">Толық Т.А.Ә.</label>
-                    <input type="text" id="inputFio" required class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label id="lblPhone" class="text-xs font-semibold text-gray-600">Телефон (WhatsApp)</label>
-                        <input type="tel" id="inputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
-                    </div>
-                    <div>
-                        <label id="lblIin" class="text-xs font-semibold text-gray-600">ЖСН</label>
-                        <input type="text" id="inputIin" maxlength="12" placeholder="Міндетті емес" class="w-full border rounded-lg p-2.5 text-sm mt-1 outline-none">
-                    </div>
-                </div>
-                <div>
-                    <label id="lblRegion" class="text-xs font-semibold text-gray-600">СҚО ауданы / қаласы</label>
-                    <select id="inputRegion" required class="w-full border rounded-lg p-2.5 text-sm mt-1 bg-white outline-none"></select>
-                </div>
-                <button type="submit" id="joinSubmitBtn" class="w-full bg-baytaq text-white py-3 rounded-xl font-bold text-sm shadow transition mt-2">Сауалнаманы жіберу</button>
-            </form>
-        </div>
+<main class="wrap">
+
+  <!-- Главный баннер -->
+  <div>
+    <section class="hero" id="home">
+      <div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+      <p class="hero-org" data-i18n="bannerTitle">Солтүстік Қазақстан облыстық филиалы</p>
+      <h1 class="wordmark" aria-label="Байтақ"><span>Б</span><span>а</span><span>й</span><span>т</span><span>а</span><span>қ</span></h1>
+      <p class="hero-sub" data-i18n="bannerSub">Қазақстанның жасылдар партиясы</p>
+      <div class="hero-cta">
+        <button class="btn btn-lime" onclick="openSheet('joinModal')" data-i18n="bannerBtn">Партияға қосылу</button>
+        <button class="btn btn-glass" onclick="openSheet('recModal')"><svg class="i"><use href="#i-send"/></svg><span data-i18n="heroRecBtn">Өтініш жіберу</span></button>
+      </div>
+      <svg class="horizon h1" viewBox="0 0 1600 100" preserveAspectRatio="none" aria-hidden="true"><path fill="#fff" d="M0 50 Q100 10 200 50 T400 50 T600 50 T800 50 T1000 50 T1200 50 T1400 50 T1600 50 V100 H0Z"/></svg>
+      <svg class="horizon h2" viewBox="0 0 1600 100" preserveAspectRatio="none" aria-hidden="true"><path fill="#C9F26B" d="M0 55 Q200 5 400 55 T800 55 T1200 55 T1600 55 V100 H0Z"/></svg>
+      <svg class="horizon h3" viewBox="0 0 1600 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60 Q100 30 200 60 T400 60 T600 60 T800 60 T1000 60 T1200 60 T1400 60 T1600 60 V100 H0Z"/></svg>
+    </section>
+
+    <!-- Быстрый доступ -->
+    <div class="quick">
+      <button onclick="openSheet('recModal')">
+        <span class="ico"><svg class="i"><use href="#i-pin"/></svg></span>
+        <span><b data-i18n="receptionTitle">Қабылдау бөлмесі</b><small data-i18n="receptionSub">Картада белгілеп, өтініш жіберу</small></span>
+      </button>
+      <button onclick="openSheet('donateModal')">
+        <span class="ico alt"><svg class="i"><use href="#i-heart"/></svg></span>
+        <span><b data-i18n="donateTitle">Жарна</b><small data-i18n="donateSub">Филиалдың деректемелері</small></span>
+      </button>
     </div>
+  </div>
 
-    <!-- Модальное окно Приемная -->
-    <div id="recModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 max-h-[92vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 id="recModalTitle" class="font-bold text-base text-baytaq-dark">Қоғамдық қабылдау бөлмесі</h3>
-                <button onclick="toggleRecModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
-            </div>
-            <div class="space-y-1">
-                <label id="lblMapHint" class="text-xs font-semibold text-gray-600">СҚО картасынан орынды таңдаңыз (басыңыз):</label>
-                <div id="map" class="w-full h-40 rounded-xl border border-gray-200"></div>
-            </div>
-            <form id="recForm" onsubmit="submitRecForm(event)" class="space-y-2.5">
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label id="recLblFio" class="text-[11px] font-semibold text-gray-600">Толық Т.А.Ә.</label>
-                        <input type="text" id="recInputFio" required class="w-full border rounded-lg p-2 text-xs outline-none">
-                    </div>
-                    <div>
-                        <label id="recLblPhone" class="text-[11px] font-semibold text-gray-600">Телефон (WhatsApp)</label>
-                        <input type="tel" id="recInputPhone" placeholder="+7..." required class="w-full border rounded-lg p-2 text-xs outline-none">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label id="recLblRegion" class="text-[11px] font-semibold text-gray-600">Аудан / Қала</label>
-                        <select id="recInputRegion" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
-                    </div>
-                    <div>
-                        <label id="recLblIin" class="text-[11px] font-semibold text-gray-600">ЖСН</label>
-                        <input type="text" id="recInputIin" maxlength="12" placeholder="Міндетті емес" class="w-full border rounded-lg p-2 text-xs outline-none">
-                    </div>
-                </div>
-                <div>
-                    <label id="recLblCategory" class="text-[11px] font-semibold text-gray-600">Сұрақ санаты</label>
-                    <select id="recInputCategory" onchange="updateSubcategories()" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
-                </div>
-                <div>
-                    <label id="recLblSubCategory" class="text-[11px] font-semibold text-gray-600">Ішкі санат</label>
-                    <select id="recInputSubCategory" required class="w-full border rounded-lg p-2 text-xs bg-white outline-none"></select>
-                </div>
-                <div>
-                    <label id="recLblText" class="text-[11px] font-semibold text-gray-600">Өтініш мәні</label>
-                    <textarea id="recInputText" rows="2" required placeholder="Мәселені сипаттаңыз..." class="w-full border rounded-lg p-2 text-xs outline-none"></textarea>
-                </div>
-                <button type="submit" id="recSubmitBtn" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs shadow">Өтінішті жіберу</button>
-            </form>
-        </div>
+  <!-- Новости -->
+  <section id="newsSection" class="reveal">
+    <div class="sec-head">
+      <h2 data-i18n="newsHeader">Филиал жаңалықтары</h2>
+      <button class="link-btn" onclick="openArchive()" data-i18n="allNewsLink">Мұрағат</button>
     </div>
-
-    <!-- Модальное окно Взносы -->
-    <div id="donateModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="donateModalTitle" class="font-bold text-base text-baytaq-dark">Банктік деректемелер</h3>
-                <button onclick="toggleDonateModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
-            </div>
-            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 space-y-2">
-                <span id="donateOrg" class="text-xs font-bold text-gray-800 block">"ҚАЗАҚСТАННЫҢ "БАЙТАҚ" ЖАСЫЛДАР ПАРТИЯСЫ" ҚБ СҚО ФФ</span>
-                <span class="text-xs font-mono font-bold text-baytaq-dark select-all block">IBAN: KZ41601A251004530111 (БИН: 230141041716)</span>
-            </div>
-            <button onclick="toggleDonateModal(false)" id="donateOkBtn" class="w-full bg-baytaq text-white py-2.5 rounded-xl font-bold text-xs">Түсінікті</button>
-        </div>
+    <div id="newsContainer" class="news-list">
+      <div class="sk big"></div><div class="sk sm"></div><div class="sk sm"></div>
     </div>
+  </section>
 
-    <!-- Модальное окно Просмотр новости -->
-    <div id="newsModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-start border-b pb-3">
-                <div>
-                    <span id="newsModalTag" class="text-[10px] bg-emerald-100 text-baytaq px-2 py-0.5 rounded font-bold uppercase">#news</span>
-                    <p id="newsModalDate" class="text-[10px] text-gray-400 mt-1"></p>
-                </div>
-                <button onclick="toggleNewsModal(false)" class="text-gray-400 text-2xl font-bold">&times;</button>
-            </div>
-            <div id="newsModalBody" class="text-xs text-gray-700 leading-relaxed whitespace-pre-line space-y-2"></div>
-            <div class="border-t pt-3 space-y-2">
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="shareNewsViaWhatsApp()" class="bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold">💬 WhatsApp</button>
-                    <button onclick="shareNewsNative()" id="shareBtn" class="bg-baytaq text-white py-2 rounded-xl text-xs font-bold">📲 Бөлісу</button>
-                </div>
-            </div>
-        </div>
+  <!-- Команда -->
+  <section id="teamSection" class="reveal">
+    <div class="sec-head"><h2 data-i18n="teamHeader">Филиал командасы</h2></div>
+    <div class="tabs" id="teamTabs">
+      <button class="tab on" data-tab="all" data-i18n="tabAll">Барлығы</button>
+      <button class="tab" data-tab="leadership" data-i18n="tabLeadership">Басшылық</button>
+      <button class="tab" data-tab="politburo" data-i18n="tabPolitburo">Саяси бюро</button>
+      <button class="tab" data-tab="ppo" data-i18n="tabPpo">БПҰ / Аудандар</button>
     </div>
+    <div id="teamList" class="team"></div>
+  </section>
 
-    <!-- Нижняя навигация PWA -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 text-[11px] text-gray-500 z-30">
-        <a href="#" class="flex flex-col items-center text-baytaq font-bold"><span class="text-lg">🏠</span><span id="navHome">Басты</span></a>
-        <a href="#newsSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">📰</span><span id="navNews">Жаңалықтар</span></a>
-        <a href="javascript:void(0)" onclick="toggleRecModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">🗺️</span><span id="navRec">Қабылдау</span></a>
-        <a href="#teamSection" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">👥</span><span id="navTeam">Команда</span></a>
-        <a href="javascript:void(0)" onclick="toggleDonateModal(true)" class="flex flex-col items-center hover:text-baytaq"><span class="text-lg">💚</span><span id="navDonate">Жарна</span></a>
-    </nav>
+  <footer class="foot reveal">
+    <span data-i18n="donateOrg">«Қазақстанның «Байтақ» жасылдар партиясы» ҚБ СҚО филиалы</span>
+    <a href="https://t.me/sqo_baytaq" target="_blank" rel="noopener"><svg class="i"><use href="#i-send"/></svg>t.me/sqo_baytaq</a>
+    <a data-wa target="_blank" rel="noopener"><svg class="i"><use href="#i-chat"/></svg>WhatsApp +7 778 392 4548</a>
+  </footer>
+</main>
 
-    <script>
-        // Стартовый язык по умолчанию — казахский (kk)
-        let currentLang = 'kk';
-        let rawNewsData = [];
-        let filteredNewsData = [];
-        let currentNewsIndex = null;
-        let activeTagFilter = 'all';
-        let activeTeamTab = 'all';
-        let map, marker;
-        let selectedLat = 54.8667;
-        let selectedLng = 69.1500;
-        let deferredPrompt;
+<!-- Установка приложения -->
+<div class="install" id="pwaInstallBanner">
+  <span class="ico"><svg class="i"><use href="#i-down"/></svg></span>
+  <div><b data-i18n="pwaTitle">«Baytaq SQO» қолданбасын орнатыңыз</b><small data-i18n="pwaSub">Басты экраннан бір басып ашу үшін</small></div>
+  <button class="btn btn-primary" onclick="installPWA()" data-i18n="pwaInstallBtn">Орнату</button>
+  <button class="x" onclick="closeInstallBanner()" aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button>
+</div>
 
-        // Полный словарь переводов
-        const translations = {
-            ru: {
-                langBtn: "ҚАЗ", joinHeaderBtn: "+ Вступить",
-                bannerTitle: "СЕВЕРО-КАЗАХСТАНСКИЙ ОБЛАСТНОЙ ФИЛИАЛ",
-                bannerSub: "ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"",
-                bannerBtn: "Присоединиться к партии",
-                receptionTitle: "Карта / Приемная", receptionSub: "Подать обращение",
-                donateTitle: "Взнос / Реквизиты", donateSub: "Поддержать филиал",
-                newsHeader: "Новости филиала", allNewsLink: "Все новости (Архив) →",
-                teamHeader: "Команда филиала",
-                tabAll: "Все", tabLeadership: "Руководство", tabPolitburo: "Политбюро", tabPpo: "ППО / Районы",
-                pwaTitle: "Установите приложение «Baytaq SQO»", pwaSub: "Для быстрого доступа и работы без интернета", pwaInstallBtn: "Установить",
-                archiveTitleModal: "Архив новостей", lblFilterDate: "Календарь:", resetBtn: "Сброс",
-                joinModalTitle: "Заявка на вступление", lblFio: "ФИО полностью", lblPhone: "Телефон (WhatsApp)", lblIin: "ИИН", lblRegion: "Район / Город СКО", joinSubmitBtn: "Отправить анкету",
-                recModalTitle: "Общественная приемная", lblMapHint: "Укажите место на карте СКО (кликните):",
-                recLblFio: "ФИО полностью", recLblPhone: "Телефон (WhatsApp)", recLblRegion: "Район / Город", recLblIin: "ИИН",
-                recLblCategory: "Категория вопроса", recLblSubCategory: "Подкатегория", recLblText: "Суть обращения", recSubmitBtn: "Отправить обращение",
-                donateModalTitle: "Банковские реквизиты", donateOrg: "СКО Ф-Л ОО \"КАЗАХСТАНСКАЯ ПАРТИЯ ЗЕЛЁНЫХ \"БАЙТАҚ\"\"", donateOkBtn: "Понятно",
-                shareBtn: "📲 Поделиться",
-                navHome: "Главная", navNews: "Новости", navRec: "Приемная", navTeam: "Команда", navDonate: "Взнос"
-            },
-            kk: {
-                langBtn: "РУС", joinHeaderBtn: "+ Қосылу",
-                bannerTitle: "СОЛТҮСТІК ҚАЗАҚСТАН ОБЛЫСТЫҚ ФИЛИАЛЫ",
-                bannerSub: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ",
-                bannerBtn: "Партияға қосылу",
-                receptionTitle: "Карта / Қабылдау", receptionSub: "Өтініш жіберу",
-                donateTitle: "Жарна / Деректемелер", donateSub: "Филиалды қолдау",
-                newsHeader: "Филиал жаңалықтары", allNewsLink: "Барлық жаңалықтар (Мұрағат) →",
-                teamHeader: "Филиал командасы",
-                tabAll: "Барлығы", tabLeadership: "Басшылық", tabPolitburo: "Саяси бюро", tabPpo: "БПҰ / Аудандар",
-                pwaTitle: "«Baytaq SQO» қолданбасын орнатыңыз", pwaSub: "Жылдам қолжетімділік пен офлайн жұмыс үшін", pwaInstallBtn: "Орнату",
-                archiveTitleModal: "Жаңалықтар мұрағаты", lblFilterDate: "Күнтізбе:", resetBtn: "Тазарту",
-                joinModalTitle: "Партияға қосылу өтініші", lblFio: "Толық Т.А.Ә.", lblPhone: "Телефон (WhatsApp)", lblIin: "ЖСН", lblRegion: "СҚО ауданы / қаласы", joinSubmitBtn: "Сауалнаманы жіберу",
-                recModalTitle: "Қоғамдық қабылдау бөлмесі", lblMapHint: "СҚО картасынан орынды таңдаңыз (басыңыз):",
-                recLblFio: "Толық Т.А.Ә.", recLblPhone: "Телефон (WhatsApp)", recLblRegion: "Аудан / Қала", recLblIin: "ЖСН",
-                recLblCategory: "Сұрақ санаты", recLblSubCategory: "Ішкі санат", recLblText: "Өтініш мәні", recSubmitBtn: "Өтінішті жіберу",
-                donateModalTitle: "Банктік деректемелер", donateOrg: "\"ҚАЗАҚСТАННЫҢ \"БАЙТАҚ\" ЖАСЫЛДАР ПАРТИЯСЫ\" ҚБ СҚО ФФ", donateOkBtn: "Түсінікті",
-                shareBtn: "📲 Бөлісу",
-                navHome: "Басты", navNews: "Жаңалықтар", navRec: "Қабылдау", navTeam: "Команда", navDonate: "Жарна"
-            }
-        };
+<!-- Нижняя навигация -->
+<nav class="dock" id="dock">
+  <button class="on" data-nav="home"><svg class="i"><use href="#i-home"/></svg><span data-i18n="navHome">Басты</span></button>
+  <button data-nav="newsSection"><svg class="i"><use href="#i-news"/></svg><span data-i18n="navNews">Жаңалықтар</span></button>
+  <button data-open="recModal"><svg class="i"><use href="#i-pin"/></svg><span data-i18n="navRec">Қабылдау</span></button>
+  <button data-nav="teamSection"><svg class="i"><use href="#i-users"/></svg><span data-i18n="navTeam">Команда</span></button>
+  <button data-open="donateModal"><svg class="i"><use href="#i-heart"/></svg><span data-i18n="navDonate">Жарна</span></button>
+</nav>
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installBanner = document.getElementById('pwaInstallBanner');
-            if (installBanner) installBanner.classList.remove('hidden');
-        });
+<!-- Окно: архив новостей -->
+<div class="sheet" id="archiveModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head"><h3 data-i18n="archiveTitleModal">Жаңалықтар мұрағаты</h3><button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="filters">
+      <div class="tabs" id="tagTabs">
+        <button class="tab on" data-tag="all" data-i18n="tabAll">Барлығы</button>
+        <button class="tab" data-tag="#news">#news</button>
+        <button class="tab" data-tag="#jkh">#jkh</button>
+        <button class="tab" data-tag="#eco">#eco</button>
+        <button class="tab" data-tag="#announcement">#announcement</button>
+      </div>
+      <div class="date-row">
+        <span data-i18n="lblFilterDate">Күні</span>
+        <div><input type="date" id="newsDateFilter" onchange="applyFilters()"><button class="mini" onclick="resetFilters()" data-i18n="resetBtn">Тазарту</button></div>
+      </div>
+    </div>
+    <div id="archiveContainer" class="news-list"></div>
+  </div>
+</div>
 
-        function installPWA() {
-            const installBanner = document.getElementById('pwaInstallBanner');
-            if (installBanner) installBanner.classList.add('hidden');
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-            }
-        }
+<!-- Окно: вступить -->
+<div class="sheet" id="joinModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head"><h3 data-i18n="joinModalTitle">Партияға қосылу өтініші</h3><button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <form id="joinForm" onsubmit="submitJoinForm(event)">
+      <label class="f"><span data-i18n="lblFio">Толық аты-жөніңіз</span><input type="text" id="inputFio" required autocomplete="name"></label>
+      <div class="grid2">
+        <label class="f"><span data-i18n="lblPhone">Телефон (WhatsApp)</span><input type="tel" id="inputPhone" placeholder="+7" required autocomplete="tel"></label>
+        <label class="f"><span data-i18n="lblIin">ЖСН</span><input type="text" id="inputIin" inputmode="numeric" pattern="\d{12}" maxlength="12" data-i18n-ph="optional" placeholder="Міндетті емес"></label>
+      </div>
+      <label class="f"><span data-i18n="lblRegion">СҚО ауданы / қаласы</span><select id="inputRegion" required></select></label>
+      <label class="consent"><input type="checkbox" required><span data-i18n="consent">Жеке деректерімді өңдеуге келісемін</span></label>
+      <button type="submit" class="btn btn-primary" data-i18n="joinSubmitBtn">Өтінішті жіберу</button>
+    </form>
+  </div>
+</div>
 
-        function closeInstallBanner() {
-            document.getElementById('pwaInstallBanner').classList.add('hidden');
-        }
+<!-- Окно: приёмная -->
+<div class="sheet" id="recModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head"><h3 data-i18n="recModalTitle">Қоғамдық қабылдау бөлмесі</h3><button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <a class="btn btn-soft wa-direct" data-wa target="_blank" rel="noopener"><svg class="i"><use href="#i-chat"/></svg><span data-i18n="waWrite">WhatsApp-қа жазу</span><span class="wa-num">+7 778 392 4548</span></a>
+    <div class="map-row">
+      <span data-i18n="lblMapHint">Картадан орынды белгілеңіз</span>
+      <button class="mini" type="button" onclick="locateMe()"><svg class="i"><use href="#i-locate"/></svg><span data-i18n="locateBtn">Мен осындамын</span></button>
+    </div>
+    <div id="map"></div>
+    <form id="recForm" onsubmit="submitRecForm(event)" style="margin-top:14px">
+      <div class="grid2">
+        <label class="f"><span data-i18n="lblFio">Толық аты-жөніңіз</span><input type="text" id="recInputFio" required autocomplete="name"></label>
+        <label class="f"><span data-i18n="lblPhone">Телефон (WhatsApp)</span><input type="tel" id="recInputPhone" placeholder="+7" required autocomplete="tel"></label>
+      </div>
+      <div class="grid2">
+        <label class="f"><span data-i18n="recLblRegion">Аудан / қала</span><select id="recInputRegion" required></select></label>
+        <label class="f"><span data-i18n="lblIin">ЖСН</span><input type="text" id="recInputIin" inputmode="numeric" pattern="\d{12}" maxlength="12" data-i18n-ph="optional" placeholder="Міндетті емес"></label>
+      </div>
+      <label class="f"><span data-i18n="recLblCategory">Сұрақ санаты</span><select id="recInputCategory" onchange="updateSubcategories()" required></select></label>
+      <label class="f"><span data-i18n="recLblSubCategory">Ішкі санат</span><select id="recInputSubCategory" required></select></label>
+      <label class="f"><span data-i18n="recLblText">Өтініш мәні</span><textarea id="recInputText" required data-i18n-ph="describe" placeholder="Мәселені сипаттаңыз"></textarea></label>
+      <label class="consent"><input type="checkbox" required><span data-i18n="consent">Жеке деректерімді өңдеуге келісемін</span></label>
+      <button type="submit" class="btn btn-primary" data-i18n="recSubmitBtn">Өтінішті жіберу</button>
+    </form>
+  </div>
+</div>
 
-        const teamMembers = [
-            { id: 1, roleCategory: 'leadership', fio: { ru: 'Серік Батыржан Бақытжанұлы', kk: 'Серік Батыржан Бақытжанұлы' }, title: { ru: 'И.о. председателя филиала', kk: 'Филиал төрағасының м.а.' }, loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' }, badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: true },
-            { id: 2, roleCategory: 'leadership', fio: { ru: 'Джусупбеков Рустам Маратович', kk: 'Джусупбеков Рустам Маратович' }, title: { ru: 'Исполнительный секретарь филиала', kk: 'Филиалдың атқарушы хатшысы' }, loc: { ru: 'СКО, г. Петропавловск', kk: 'СҚО, Петропавл қ.' }, badge: { ru: 'Руководство', kk: 'Басшылық' }, isLeader: false },
-            { id: 3, roleCategory: 'politburo', fio: { ru: 'Төлеген Жапар Бәриұлы', kk: 'Төлеген Жапар Бәриұлы' }, title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' }, loc: { ru: 'СКО', kk: 'СҚО' }, badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false },
-            { id: 4, roleCategory: 'politburo', fio: { ru: 'Кускенов Самрат Дулатович', kk: 'Кускенов Самрат Дулатович' }, title: { ru: 'Член Политбюро филиала', kk: 'Филиал Саяси бюросының мүшесі' }, loc: { ru: 'СКО', kk: 'СҚО' }, badge: { ru: 'Политбюро', kk: 'Саяси бюро' }, isLeader: false }
-        ];
+<!-- Окно: взносы -->
+<div class="sheet" id="donateModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head"><h3 data-i18n="donateModalTitle">Банктік деректемелер</h3><button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="bank">
+      <b data-i18n="donateOrg">«Қазақстанның «Байтақ» жасылдар партиясы» ҚБ СҚО филиалы</b>
+      <dl>
+        <div><dt>IBAN</dt><dd id="ibanValue">KZ41601A251004530111</dd></div>
+        <div><dt data-i18n="binLabel">БСН</dt><dd>230141041716</dd></div>
+      </dl>
+      <button class="mini" onclick="copyIban()"><svg class="i"><use href="#i-copy"/></svg><span data-i18n="copyIban">IBAN көшіру</span></button>
+    </div>
+    <button class="btn btn-soft" style="width:100%" data-close data-i18n="donateOkBtn">Түсінікті</button>
+  </div>
+</div>
 
-        const regionsData = {
-            ru: ["Выберите район / город...", "Город Петропавловск", "Айыртауский район", "Акжарский район", "Аккайынский район", "Есильский район", "Жамбылский район", "Район Магжана Жумабаева", "Кызылжарский район", "Мамлютский район", "Район имени Габита Мусрепова", "Тайыншинский район", "Тимирязевский район", "Уалихановский район", "Район Шал акына"],
-            kk: ["Ауданды / қаланы таңдаңыз...", "Петропавл қаласы", "Айыртау ауданы", "Ақжар ауданы", "Аққайың ауданы", "Есiл ауданы", "Жамбыл ауданы", "Мағжан Жұмабаев ауданы", "Қызылжар ауданы", "Мамлют ауданы", "Ғабит Мүсірепов ауданы", "Тайынша ауданы", "Тимирязев ауданы", "Уәлиханов ауданы", "Шал ақын ауданы"]
-        };
+<!-- Окно: просмотр новости -->
+<div class="sheet" id="newsModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head">
+      <div class="meta"><span class="tag" id="newsModalTag">#news</span><span class="date" id="newsModalDate" style="color:var(--muted)"></span></div>
+      <button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button>
+    </div>
+    <img id="newsModalImg" class="article-img" alt="" hidden>
+    <div id="newsModalBody" class="article"></div>
+    <div class="share">
+      <button class="btn btn-soft" onclick="shareNewsViaWhatsApp()"><svg class="i"><use href="#i-chat"/></svg>WhatsApp</button>
+      <button class="btn btn-primary" onclick="shareNewsNative()"><svg class="i"><use href="#i-share"/></svg><span data-i18n="shareBtn">Бөлісу</span></button>
+    </div>
+  </div>
+</div>
 
-        const categoriesStructured = {
-            ru: [
-                { cat: "🌿 Экология и водоемы", subs: ["Стихийная свалка", "Загрязнение водоемов", "Вырубка деревьев", "Загрязнение воздуха"] },
-                { cat: "🏙️ Инфраструктура и ЖКХ", subs: ["ТЭЦ-2 / Отопление", "Порывы водопровода", "Отключение света"] },
-                { cat: "🛣️ Дороги и Благоустройство", subs: ["Ямы на дорогах", "Отсутствие тротуаров", "Невывоз ТБО"] },
-                { cat: "⚖️ Другое / Защита прав", subs: ["Социальные вопросы", "Правовая консультация", "Прочее"] }
-            ],
-            kk: [
-                { cat: "🌿 Экология және су ресурстары", subs: ["Заңсыз қоқыс орны", "Су айдындарының ластануы", "Ағаштарды отау", "Ауаның ластануы"] },
-                { cat: "🏙️ ТҮКШ және инфрақұрылым", subs: ["ЖЭО-2 / Жылу мәселесі", "Су құбыры жарылуы", "Жарықтың өшуі"] },
-                { cat: "🛣️ Жолдар мен көркейту", subs: ["Жолдағы шұңқырлар", "Тротуарлардың болмауы", "Қоқысты шығармау"] },
-                { cat: "⚖️ Басқа / Құқық қорғау", subs: ["Әлеуметтік сұрақтар", "Құқықтық кеңес", "Басқа өтініш"] }
-            ]
-        };
+<!-- Окно: вход админа -->
+<div class="sheet" id="loginModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head"><h3 data-i18n="loginTitle">Админ кіруі</h3><button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <form id="loginForm" onsubmit="submitLogin(event)">
+      <label class="f"><span data-i18n="lblLogin">Логин</span><input type="text" id="adminLogin" required autocomplete="username" autocapitalize="off" spellcheck="false"></label>
+      <label class="f"><span data-i18n="lblPass">Құпиясөз</span><input type="password" id="adminPass" required autocomplete="current-password"></label>
+      <div class="form-err" id="loginErr" role="alert"></div>
+      <button type="submit" class="btn btn-primary" data-i18n="loginBtn">Кіру</button>
+    </form>
+  </div>
+</div>
 
-        function initMap() {
-            if (map) return;
-            setTimeout(() => {
-                map = L.map('map').setView([selectedLat, selectedLng], 11);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
-                marker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(map);
-                map.on('click', e => { selectedLat = e.latlng.lat; selectedLng = e.latlng.lng; marker.setLatLng([selectedLat, selectedLng]); });
-            }, 100);
-        }
+<!-- Окно: панель админа -->
+<div class="sheet" id="adminModal">
+  <div class="panel">
+    <div class="grab"></div>
+    <div class="panel-head"><h3 data-i18n="adminTitle">Админ панелі</h3><button class="x" data-close aria-label="Жабу"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="note">
+      <span data-i18n="adminNote">Әзірге жаңалық тек осы құрылғыда сақталады — басқа адамдар оны көрмейді. Бәрі көруі үшін оны Telegram-арнаға жариялаңыз.</span>
+      <a class="mini" href="https://t.me/sqo_baytaq" target="_blank" rel="noopener"><svg class="i"><use href="#i-send"/></svg><span data-i18n="openChannel">Telegram-арнаны ашу</span></a>
+    </div>
+    <form id="adminForm" onsubmit="submitAdminNews(event)" novalidate>
+      <div class="grid2">
+        <label class="f"><span data-i18n="lblTag">Айдар</span><select id="anTag">
+          <option value="#news">#news</option><option value="#eco">#eco</option><option value="#jkh">#jkh</option><option value="#announcement">#announcement</option>
+        </select></label>
+        <label class="f"><span data-i18n="lblFilterDate">Күні</span><input type="date" id="anDate" required></label>
+      </div>
+      <label class="f"><span data-i18n="lblTitleKk">Тақырып — қазақша</span><input type="text" id="anTitleKk" maxlength="140"></label>
+      <label class="f"><span data-i18n="lblTextKk">Мәтін — қазақша</span><textarea id="anTextKk" rows="3"></textarea></label>
+      <label class="f"><span data-i18n="lblTitleRu">Тақырып — орысша</span><input type="text" id="anTitleRu" maxlength="140"></label>
+      <label class="f"><span data-i18n="lblTextRu">Мәтін — орысша</span><textarea id="anTextRu" rows="3"></textarea></label>
+      <p class="hint" data-i18n="langHint">Бір тілде ғана толтырсаңыз, екі тілде де сол мәтін көрсетіледі.</p>
+      <div class="photo-row">
+        <label class="mini" for="anPhoto"><svg class="i"><use href="#i-image"/></svg><span data-i18n="addPhoto">Фото қосу</span></label>
+        <input type="file" id="anPhoto" accept="image/*" onchange="pickPhoto(this)">
+        <button type="button" class="mini" id="anPhotoDel" onclick="clearPhoto()" hidden><svg class="i"><use href="#i-x"/></svg><span data-i18n="delPhoto">Фотоны алып тастау</span></button>
+      </div>
+      <img id="anPhotoPrev" class="photo-prev" alt="" hidden>
+      <div class="form-err" id="adminErr" role="alert"></div>
+      <button type="submit" class="btn btn-primary" id="anSubmit">Жаңалықты сақтау</button>
+      <button type="button" class="btn btn-soft" id="anCancel" onclick="resetAdminForm()" hidden data-i18n="cancelEdit">Өңдеуден бас тарту</button>
+    </form>
+    <h4 class="sub-h" data-i18n="myNews">Қосылған жаңалықтар</h4>
+    <div id="adminList" class="alist"></div>
+    <button class="btn btn-ghost" onclick="adminLogout()"><svg class="i"><use href="#i-out"/></svg><span data-i18n="logout">Шығу</span></button>
+  </div>
+</div>
 
-        function renderSelects() {
-            ['inputRegion', 'recInputRegion'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                let html = '';
-                regionsData[currentLang].forEach((item, index) => {
-                    html += index === 0 ? `<option value="" disabled selected>${item}</option>` : `<option value="${item}">${item}</option>`;
-                });
-                el.innerHTML = html;
-            });
-            const catSelect = document.getElementById('recInputCategory');
-            if (catSelect) {
-                let html = `<option value="" disabled selected>${currentLang === 'ru' ? 'Выберите категорию...' : 'Санатты таңдаңыз...'}</option>`;
-                categoriesStructured[currentLang].forEach((c, idx) => { html += `<option value="${idx}">${c.cat}</option>`; });
-                catSelect.innerHTML = html;
-            }
-            updateSubcategories();
-        }
+<div class="toast" id="toast" role="status"></div>
 
-        function updateSubcategories() {
-            const catIdx = document.getElementById('recInputCategory').value;
-            const subSelect = document.getElementById('recInputSubCategory');
-            if (!subSelect) return;
-            if (catIdx === "") { 
-                subSelect.innerHTML = `<option value="" disabled selected>${currentLang === 'ru' ? 'Сначала выберите категорию' : 'Алдымен санатты таңдаңыз'}</option>`; 
-                return; 
-            }
-            let html = `<option value="" disabled selected>${currentLang === 'ru' ? 'Выберите подкатегорию...' : 'Ішкі санатты таңдаңыз...'}</option>`;
-            categoriesStructured[currentLang][catIdx].subs.forEach(s => { html += `<option value="${s}">${s}</option>`; });
-            subSelect.innerHTML = html;
-        }
+<script>
+/* ================= Настройки ================= */
+const CONFIG = {
+  // Адрес вашего сервера-посредника (Cloudflare Worker), например
+  // 'https://baytaq.ваше-имя.workers.dev'. Когда он вписан, заявки и обращения
+  // приходят в Telegram, а новости грузятся через него же.
+  FORM_ENDPOINT: 'https://baytaq.gulsana0000.workers.dev',
+  // Номер WhatsApp филиала (только цифры, с кодом страны).
+  // Пока FORM_ENDPOINT пуст, заявки и обращения уходят сюда готовым сообщением.
+  WHATSAPP: '77783924548',
+  TELEGRAM_CHANNEL: 'sqo_baytaq',
+  // Вход админа. ВНИМАНИЕ: логин и пароль видны любому, кто откроет код страницы.
+  // Настоящая защита возможна только на сервере.
+  ADMIN_LOGIN: 'Baitaq',
+  ADMIN_PASSWORD: '000000',
+  NEWS_PROXY: 'https://api.allorigins.win/get?url='
+};
 
-        function renderTeam() {
-            const container = document.getElementById('teamList');
-            if (!container) return;
-            const filtered = activeTeamTab === 'all' ? teamMembers : teamMembers.filter(m => m.roleCategory === activeTeamTab);
-            let html = '';
-            filtered.forEach(m => {
-                const initials = m.fio[currentLang].split(' ').map(n => n[0]).slice(0, 2).join('');
-                const bg = m.isLeader ? 'bg-gradient-to-tr from-baytaq to-emerald-600 text-white' : 'bg-emerald-100 text-baytaq-dark font-bold';
-                html += `
-                    <div class="flex items-center space-x-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50">
-                        <div class="w-12 h-12 rounded-full ${bg} flex-shrink-0 flex items-center justify-center text-sm font-bold">${initials}</div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-xs text-gray-900 truncate">${m.fio[currentLang]}</h3>
-                            <p class="text-[11px] text-baytaq-dark font-medium">${m.title[currentLang]}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
+/* ================= Состояние ================= */
+let currentLang = 'kk';
+let rawNewsData = [];        // всё вместе: новости админа + Telegram
+let tgNews = [];             // из Telegram-канала
+let adminNews = [];          // добавлены в приложении
+let tgDone = false;
+let isAdmin = false;
+let editingId = null;
+let adminImage = null;
+let filteredNewsData = [];
+let currentNewsIndex = null;
+let activeTagFilter = 'all';
+let activeTeamTab = 'all';
+let newsState = 'loading';           // loading | ready | failed
+let newsAnimated = false;
+let map, marker;
+let selectedLat = 54.8667, selectedLng = 69.1500;
+let pointChosen = false;      // человек сам отметил место на карте
+let deferredPrompt;
+let endpointFailed = false;   // сервер не ответил — отправляем через WhatsApp
 
-        function switchTeamTab(tabKey) {
-            activeTeamTab = tabKey;
-            document.querySelectorAll('.team-tab').forEach(b => b.className = "team-tab bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition");
-            document.getElementById(`tab-${tabKey}`).className = "team-tab bg-baytaq text-white px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition";
-            renderTeam();
-        }
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } }
+};
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'ru' ? 'kk' : 'ru';
-            document.documentElement.lang = currentLang;
-            
-            const t = translations[currentLang];
-            for (let key in t) {
-                const el = document.getElementById(key);
-                if (el) el.innerText = t[key];
-            }
+/* ================= Переводы ================= */
+const translations = {
+  ru: {
+    langBtn:"ҚАЗ", regionShort:"СКО", joinHeaderBtn:"Вступить",
+    bannerTitle:"Северо-Казахстанский областной филиал",
+    bannerSub:"Казахстанская партия зелёных",
+    bannerBtn:"Вступить в партию", heroRecBtn:"Подать обращение",
+    receptionTitle:"Приёмная", receptionSub:"Отметить на карте и подать обращение",
+    donateTitle:"Взнос", donateSub:"Реквизиты филиала",
+    newsHeader:"Новости филиала", allNewsLink:"Архив", teamHeader:"Команда филиала",
+    tabAll:"Все", tabLeadership:"Руководство", tabPolitburo:"Политбюро", tabPpo:"ППО / Районы",
+    pwaTitle:"Установите приложение «Baytaq SQO»", pwaSub:"Чтобы открывать с главного экрана в одно касание", pwaInstallBtn:"Установить",
+    archiveTitleModal:"Архив новостей", lblFilterDate:"Дата", resetBtn:"Сбросить",
+    joinModalTitle:"Заявка на вступление", lblFio:"ФИО полностью", lblPhone:"Телефон (WhatsApp)", lblIin:"ИИН",
+    lblRegion:"Район / город СКО", joinSubmitBtn:"Отправить заявку",
+    recModalTitle:"Общественная приёмная", lblMapHint:"Отметьте место на карте", locateBtn:"Я здесь",
+    recLblRegion:"Район / город", recLblCategory:"Категория вопроса", recLblSubCategory:"Подкатегория",
+    recLblText:"Суть обращения", recSubmitBtn:"Отправить обращение",
+    donateModalTitle:"Банковские реквизиты", donateOrg:"СКО филиал ОО «Казахстанская партия зелёных «Байтақ»",
+    donateOkBtn:"Понятно", binLabel:"БИН", copyIban:"Скопировать IBAN", shareBtn:"Поделиться",
+    navHome:"Главная", navNews:"Новости", navRec:"Приёмная", navTeam:"Команда", navDonate:"Взнос",
+    loginTitle:"Вход для админа", lblLogin:"Логин", lblPass:"Пароль", loginBtn:"Войти", loginWrong:"Неверный логин или пароль",
+    adminTitle:"Панель админа", adminNote:"Пока новость сохраняется только на этом устройстве — другие люди её не увидят. Чтобы увидели все, опубликуйте её в Telegram-канале.",
+    lblTag:"Рубрика", lblTitleKk:"Заголовок — на казахском", lblTextKk:"Текст — на казахском", lblTitleRu:"Заголовок — на русском", lblTextRu:"Текст — на русском",
+    langHint:"Если заполнить только один язык, этот текст покажется на обоих.", addPhoto:"Добавить фото", delPhoto:"Убрать фото",
+    saveNews:"Сохранить новость", saveEdit:"Сохранить изменения", cancelEdit:"Отменить правку", myNews:"Добавленные новости",
+    adminEmpty:"Вы ещё не добавили ни одной новости", logout:"Выйти", newsSaved:"Новость сохранена", newsDeleted:"Новость удалена",
+    needTitle:"Напишите заголовок хотя бы на одном языке", needDate:"Укажите дату", confirmDel:"Удалить?", editLbl:"Изменить", delLbl:"Удалить",
+    storageFull:"Не удалось сохранить: память браузера переполнена. Уберите фото или удалите старые новости", photoFail:"Не удалось прочитать фото",
+    loggedOut:"Вы вышли",
+    sendWa:"Отправить в WhatsApp", waOpened:"Открыли WhatsApp — нажмите там «Отправить»", waWrite:"Написать в WhatsApp",
+    waJoinHead:"Заявка на вступление в партию «Байтақ»", waRecHead:"Обращение в общественную приёмную «Байтақ»",
+    waFio:"ФИО", waPhone:"Телефон", waIin:"ИИН", waRegion:"Район / город", waCat:"Категория", waText:"Суть", waPlace:"Место на карте",
+    optional:"Необязательно", describe:"Опишите проблему",
+    consent:"Согласен(на) на обработку персональных данных",
+    chooseCat:"Выберите категорию", chooseSub:"Выберите подкатегорию", firstCat:"Сначала выберите категорию",
+    newsNotFound:"Новостей с такими фильтрами нет", newsFailed:"Не удалось загрузить новости. Проверьте интернет или откройте канал.",
+    openChannel:"Открыть Telegram-канал", teamEmpty:"Список первичных организаций скоро появится",
+    joinSent:"Заявка отправлена", recSent:"Обращение отправлено",
+    demoNotSent:"Демо-режим: форма ещё не подключена, данные не отправлены",
+    sendError:"Не удалось отправить. Проверьте интернет и попробуйте ещё раз",
+    sendErrorWa:"Не удалось отправить. Нажмите кнопку ещё раз — сообщение уйдёт через WhatsApp",
+    copied:"IBAN скопирован", copyFail:"Не удалось скопировать — выделите номер вручную",
+    geoFail:"Не удалось определить местоположение", geoNone:"Геолокация недоступна на этом устройстве"
+  },
+  kk: {
+    langBtn:"РУС", regionShort:"СҚО", joinHeaderBtn:"Қосылу",
+    bannerTitle:"Солтүстік Қазақстан облыстық филиалы",
+    bannerSub:"Қазақстанның жасылдар партиясы",
+    bannerBtn:"Партияға қосылу", heroRecBtn:"Өтініш жіберу",
+    receptionTitle:"Қабылдау бөлмесі", receptionSub:"Картада белгілеп, өтініш жіберу",
+    donateTitle:"Жарна", donateSub:"Филиалдың деректемелері",
+    newsHeader:"Филиал жаңалықтары", allNewsLink:"Мұрағат", teamHeader:"Филиал командасы",
+    tabAll:"Барлығы", tabLeadership:"Басшылық", tabPolitburo:"Саяси бюро", tabPpo:"БПҰ / Аудандар",
+    pwaTitle:"«Baytaq SQO» қолданбасын орнатыңыз", pwaSub:"Басты экраннан бір басып ашу үшін", pwaInstallBtn:"Орнату",
+    archiveTitleModal:"Жаңалықтар мұрағаты", lblFilterDate:"Күні", resetBtn:"Тазарту",
+    joinModalTitle:"Партияға қосылу өтініші", lblFio:"Толық аты-жөніңіз", lblPhone:"Телефон (WhatsApp)", lblIin:"ЖСН",
+    lblRegion:"СҚО ауданы / қаласы", joinSubmitBtn:"Өтінішті жіберу",
+    recModalTitle:"Қоғамдық қабылдау бөлмесі", lblMapHint:"Картадан орынды белгілеңіз", locateBtn:"Мен осындамын",
+    recLblRegion:"Аудан / қала", recLblCategory:"Сұрақ санаты", recLblSubCategory:"Ішкі санат",
+    recLblText:"Өтініш мәні", recSubmitBtn:"Өтінішті жіберу",
+    donateModalTitle:"Банктік деректемелер", donateOrg:"«Қазақстанның «Байтақ» жасылдар партиясы» ҚБ СҚО филиалы",
+    donateOkBtn:"Түсінікті", binLabel:"БСН", copyIban:"IBAN көшіру", shareBtn:"Бөлісу",
+    navHome:"Басты", navNews:"Жаңалықтар", navRec:"Қабылдау", navTeam:"Команда", navDonate:"Жарна",
+    loginTitle:"Админ кіруі", lblLogin:"Логин", lblPass:"Құпиясөз", loginBtn:"Кіру", loginWrong:"Логин немесе құпиясөз қате",
+    adminTitle:"Админ панелі", adminNote:"Әзірге жаңалық тек осы құрылғыда сақталады — басқа адамдар оны көрмейді. Бәрі көруі үшін оны Telegram-арнаға жариялаңыз.",
+    lblTag:"Айдар", lblTitleKk:"Тақырып — қазақша", lblTextKk:"Мәтін — қазақша", lblTitleRu:"Тақырып — орысша", lblTextRu:"Мәтін — орысша",
+    langHint:"Бір тілде ғана толтырсаңыз, екі тілде де сол мәтін көрсетіледі.", addPhoto:"Фото қосу", delPhoto:"Фотоны алып тастау",
+    saveNews:"Жаңалықты сақтау", saveEdit:"Өзгерістерді сақтау", cancelEdit:"Өңдеуден бас тарту", myNews:"Қосылған жаңалықтар",
+    adminEmpty:"Сіз әлі жаңалық қосқан жоқсыз", logout:"Шығу", newsSaved:"Жаңалық сақталды", newsDeleted:"Жаңалық жойылды",
+    needTitle:"Кемінде бір тілде тақырып жазыңыз", needDate:"Күнін көрсетіңіз", confirmDel:"Жою керек пе?", editLbl:"Өңдеу", delLbl:"Жою",
+    storageFull:"Сақталмады: браузер жады толды. Фотоны алып тастаңыз немесе ескі жаңалықтарды жойыңыз", photoFail:"Фото оқылмады",
+    loggedOut:"Сіз шықтыңыз",
+    sendWa:"WhatsApp арқылы жіберу", waOpened:"WhatsApp ашылды — сол жерде «Жіберу» түймесін басыңыз", waWrite:"WhatsApp-қа жазу",
+    waJoinHead:"«Байтақ» партиясына қосылу өтініші", waRecHead:"«Байтақ» қоғамдық қабылдау бөлмесіне өтініш",
+    waFio:"Аты-жөні", waPhone:"Телефон", waIin:"ЖСН", waRegion:"Аудан / қала", waCat:"Санат", waText:"Мәні", waPlace:"Картадағы орны",
+    optional:"Міндетті емес", describe:"Мәселені сипаттаңыз",
+    consent:"Жеке деректерімді өңдеуге келісемін",
+    chooseCat:"Санатты таңдаңыз", chooseSub:"Ішкі санатты таңдаңыз", firstCat:"Алдымен санатты таңдаңыз",
+    newsNotFound:"Мұндай сүзгімен жаңалық жоқ", newsFailed:"Жаңалықтар жүктелмеді. Интернетті тексеріңіз немесе арнаны ашыңыз.",
+    openChannel:"Telegram-арнаны ашу", teamEmpty:"Бастауыш ұйымдар тізімі жақында шығады",
+    joinSent:"Өтініш жіберілді", recSent:"Өтініш жіберілді",
+    demoNotSent:"Демо-режим: форма әлі қосылмаған, деректер жіберілген жоқ",
+    sendError:"Жіберілмеді. Интернетті тексеріп, қайталап көріңіз",
+    sendErrorWa:"Жіберілмеді. Түймені тағы бір басыңыз — хабарлама WhatsApp арқылы кетеді",
+    copied:"IBAN көшірілді", copyFail:"Көшірілмеді — нөмірді қолмен белгілеңіз",
+    geoFail:"Орналасқан жер анықталмады", geoNone:"Бұл құрылғыда геолокация қолжетімсіз"
+  }
+};
+const t = k => (translations[currentLang] && translations[currentLang][k]) || k;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONTHS = {
+  kk:['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'],
+  ru:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+};
+const fmtDate = d => {
+  const dt = new Date(d);
+  if (isNaN(dt)) return '';
+  return dt.getDate() + ' ' + MONTHS[currentLang][dt.getMonth()] + ' ' + dt.getFullYear();
+};
 
-            renderSelects(); 
-            renderNews(); 
-            renderArchiveList(); 
-            renderTeam();
-        }
+/* ================= Данные ================= */
+const teamMembers = [
+  { id:1, roleCategory:'leadership', fio:{ru:'Серік Батыржан Бақытжанұлы',kk:'Серік Батыржан Бақытжанұлы'}, title:{ru:'И.о. председателя филиала',kk:'Филиал төрағасының м.а.'}, loc:{ru:'СКО, г. Петропавловск',kk:'СҚО, Петропавл қ.'}, isLeader:true },
+  { id:2, roleCategory:'leadership', fio:{ru:'Джусупбеков Рустам Маратович',kk:'Джусупбеков Рустам Маратович'}, title:{ru:'Исполнительный секретарь филиала',kk:'Филиалдың атқарушы хатшысы'}, loc:{ru:'СКО, г. Петропавловск',kk:'СҚО, Петропавл қ.'}, isLeader:false },
+  { id:3, roleCategory:'politburo', fio:{ru:'Төлеген Жапар Бәриұлы',kk:'Төлеген Жапар Бәриұлы'}, title:{ru:'Член Политбюро филиала',kk:'Филиал Саяси бюросының мүшесі'}, loc:{ru:'СКО',kk:'СҚО'}, isLeader:false },
+  { id:4, roleCategory:'politburo', fio:{ru:'Кускенов Самрат Дулатович',kk:'Кускенов Самрат Дулатович'}, title:{ru:'Член Политбюро филиала',kk:'Филиал Саяси бюросының мүшесі'}, loc:{ru:'СКО',kk:'СҚО'}, isLeader:false }
+];
 
-        function toggleJoinModal(show) { document.getElementById('joinModal').classList.toggle('hidden', !show); }
-        function toggleRecModal(show) { document.getElementById('recModal').classList.toggle('hidden', !show); if(show) initMap(); }
-        function toggleDonateModal(show) { document.getElementById('donateModal').classList.toggle('hidden', !show); }
-        function toggleNewsModal(show) { document.getElementById('newsModal').classList.toggle('hidden', !show); }
-        function openArchiveModal(show) { document.getElementById('archiveModal').classList.toggle('hidden', !show); if(show) applyFilters(); }
+const regionsData = {
+  ru:["Выберите район / город","Город Петропавловск","Айыртауский район","Акжарский район","Аккайынский район","Есильский район","Жамбылский район","Район Магжана Жумабаева","Кызылжарский район","Мамлютский район","Район имени Габита Мусрепова","Тайыншинский район","Тимирязевский район","Уалихановский район","Район Шал акына"],
+  kk:["Ауданды / қаланы таңдаңыз","Петропавл қаласы","Айыртау ауданы","Ақжар ауданы","Аққайың ауданы","Есіл ауданы","Жамбыл ауданы","Мағжан Жұмабаев ауданы","Қызылжар ауданы","Мамлют ауданы","Ғабит Мүсірепов ауданы","Тайынша ауданы","Тимирязев ауданы","Уәлиханов ауданы","Шал ақын ауданы"]
+};
 
-        async function fetchTelegramNews() {
-            const cachedNews = localStorage.getItem('baytaq_cached_news');
-            if (cachedNews) {
-                try {
-                    rawNewsData = JSON.parse(cachedNews);
-                    applyFilters();
-                    renderNews();
-                } catch (e) {}
-            }
+const categoriesStructured = {
+  ru:[
+    { cat:"Экология и водоёмы", subs:["Стихийная свалка","Загрязнение водоёмов","Вырубка деревьев","Загрязнение воздуха"] },
+    { cat:"Инфраструктура и ЖКХ", subs:["ТЭЦ-2 / Отопление","Порывы водопровода","Отключение света"] },
+    { cat:"Дороги и благоустройство", subs:["Ямы на дорогах","Отсутствие тротуаров","Невывоз ТБО"] },
+    { cat:"Другое / Защита прав", subs:["Социальные вопросы","Правовая консультация","Прочее"] }
+  ],
+  kk:[
+    { cat:"Экология және су ресурстары", subs:["Заңсыз қоқыс орны","Су айдындарының ластануы","Ағаштарды отау","Ауаның ластануы"] },
+    { cat:"ТҮКШ және инфрақұрылым", subs:["ЖЭО-2 / Жылу мәселесі","Су құбыры жарылуы","Жарықтың өшуі"] },
+    { cat:"Жолдар мен көркейту", subs:["Жолдағы шұңқырлар","Тротуарлардың болмауы","Қоқысты шығармау"] },
+    { cat:"Басқа / Құқық қорғау", subs:["Әлеуметтік сұрақтар","Құқықтық кеңес","Басқа өтініш"] }
+  ]
+};
 
-            try {
-                const res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://t.me/s/sqo_baytaq'));
-                const data = await res.json();
-                
-                if (data && data.contents) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data.contents, 'text/html');
-                    const messages = doc.querySelectorAll('.tgme_widget_message_text');
-                    
-                    if (messages && messages.length > 0) {
-                        const freshNews = [];
-                        messages.forEach(msg => {
-                            let fullText = msg.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]*>?/gm, '');
-                            
-                            let pubDate = new Date().toISOString();
-                            const dateMatch = fullText.match(/\[ДАТА:\s*(\d{4}-\d{2}-\d{2})\]/);
-                            if (dateMatch) {
-                                pubDate = new Date(dateMatch[1]).toISOString();
-                                fullText = fullText.replace(dateMatch[0], '').trim();
-                            } else {
-                                const dateEl = msg.closest('.tgme_widget_message').querySelector('.tgme_widget_message_date time');
-                                if (dateEl) pubDate = dateEl.getAttribute('datetime');
-                            }
+/* ================= Уведомления ================= */
+let toastTimer;
+function showToast(msg, type){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3600);
+}
 
-                            let tag = '#news';
-                            const hashtagMatch = fullText.match(/#(news|jkh|eco|announcement)\b/i);
-                            if (hashtagMatch) {
-                                tag = hashtagMatch[0].toLowerCase();
-                            }
+/* ================= Окна ================= */
+function openSheet(id){
+  const s = document.getElementById(id);
+  if (!s) return;
+  s.classList.add('open');
+  document.body.classList.add('locked');
+  if (id === 'recModal') initMap();
+}
+function closeSheet(id){
+  const s = document.getElementById(id);
+  if (!s) return;
+  s.classList.remove('open');
+  if (!document.querySelector('.sheet.open')) document.body.classList.remove('locked');
+}
+document.querySelectorAll('.sheet').forEach(s => {
+  s.addEventListener('click', e => {
+    if (e.target === s || e.target.closest('[data-close]')) closeSheet(s.id);
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const open = document.querySelectorAll('.sheet.open');
+  if (open.length) closeSheet(open[open.length - 1].id);
+});
+function openArchive(){ applyFilters(); openSheet('archiveModal'); }
 
-                            let parts = fullText.split('─── 🌿 ───');
-                            let textKk = (parts[0] || fullText).trim();
-                            let textRu = (parts[1] || parts[0] || fullText).trim();
+/* ================= Тема и язык ================= */
+function applyTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  document.querySelector('#themeBtn use').setAttribute('href', theme === 'dark' ? '#i-sun' : '#i-moon');
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#06140F' : '#053B2C');
+}
+function toggleTheme(){
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(next); store.set('baytaq_theme', next);
+}
 
-                            freshNews.push({
-                                description: fullText,
-                                pubDate: pubDate,
-                                tag: tag,
-                                parsedText: { kk: textKk, ru: textRu }
-                            });
-                        });
+function applyLanguage(){
+  document.documentElement.lang = currentLang;
+  document.getElementById('langBtn').textContent = t('langBtn');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  renderSelects(); renderNews(); renderArchiveList(); renderTeam(); renderAdminList(); syncAdminForm();
+}
+function toggleLanguage(){
+  currentLang = currentLang === 'ru' ? 'kk' : 'ru';
+  store.set('baytaq_lang', currentLang);
+  applyLanguage();
+}
 
-                        freshNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-                        
-                        rawNewsData = freshNews;
-                        localStorage.setItem('baytaq_cached_news', JSON.stringify(rawNewsData));
+/* ================= Установка приложения ================= */
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('pwaInstallBanner').classList.add('show');
+});
+function installPWA(){
+  closeInstallBanner();
+  if (deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); }
+}
+function closeInstallBanner(){ document.getElementById('pwaInstallBanner').classList.remove('show'); }
 
-                        applyFilters();
-                        renderNews();
-                        return;
-                    }
-                }
-            } catch (err) {
-                if (!rawNewsData || rawNewsData.length === 0) {
-                    rawNewsData = [{
-                        description: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news\n─── 🌿 ───\nСҚО филиалы PWA-сайт әзірлеуде #news',
-                        pubDate: new Date().toISOString(),
-                        tag: '#news',
-                        parsedText: { kk: 'СҚО филиалы PWA-сайт әзірлеуде #news', ru: 'СКО филиал партии «Байтақ» разрабатывает PWA-сайт #news' }
-                    }];
-                    applyFilters();
-                    renderNews();
-                }
-            }
-        }
+/* ================= Карта ================= */
+function initMap(){
+  if (typeof L === 'undefined') return;
+  if (map){ setTimeout(() => map.invalidateSize(), 480); return; }
+  setTimeout(() => {
+    map = L.map('map', { attributionControl:true }).setView([selectedLat, selectedLng], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'&copy; OpenStreetMap' }).addTo(map);
+    const icon = L.divIcon({ className:'', html:'<div class="pin"></div>', iconSize:[26,26], iconAnchor:[13,26] });
+    marker = L.marker([selectedLat, selectedLng], { draggable:true, icon }).addTo(map);
+    marker.on('dragend', () => { const p = marker.getLatLng(); selectedLat = p.lat; selectedLng = p.lng; pointChosen = true; });
+    map.on('click', e => setPoint(e.latlng.lat, e.latlng.lng));
+  }, 480);
+}
+function setPoint(lat, lng, recenter){
+  selectedLat = lat; selectedLng = lng; pointChosen = true;
+  if (marker) marker.setLatLng([lat, lng]);
+  if (recenter && map) map.setView([lat, lng], 15);
+}
+function locateMe(){
+  if (!navigator.geolocation){ showToast(t('geoNone'), 'warn'); return; }
+  navigator.geolocation.getCurrentPosition(
+    p => setPoint(p.coords.latitude, p.coords.longitude, true),
+    () => showToast(t('geoFail'), 'warn'),
+    { enableHighAccuracy:true, timeout:10000 }
+  );
+}
 
-        function renderNews() {
-            const container = document.getElementById('newsContainer');
-            if (!rawNewsData || rawNewsData.length === 0) return;
-            
-            let html = '';
-            rawNewsData.slice(0, 4).forEach((item, index) => {
-                let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
-                let title = displayText.split('\n')[0] || displayText.slice(0, 80);
+/* ================= Списки форм ================= */
+function renderSelects(){
+  ['inputRegion','recInputRegion'].forEach(id => {
+    const el = document.getElementById(id);
+    const keep = el.selectedIndex > 0 ? el.selectedIndex : 0;
+    el.innerHTML = regionsData[currentLang].map((item, i) =>
+      i === 0 ? `<option value="" disabled>${esc(item)}</option>` : `<option value="${esc(item)}">${esc(item)}</option>`).join('');
+    el.selectedIndex = keep;
+  });
+  const cat = document.getElementById('recInputCategory');
+  const keepCat = cat.selectedIndex > 0 ? cat.selectedIndex : 0;
+  cat.innerHTML = `<option value="" disabled>${esc(t('chooseCat'))}</option>` +
+    categoriesStructured[currentLang].map((c, i) => `<option value="${i}">${esc(c.cat)}</option>`).join('');
+  cat.selectedIndex = keepCat;
+  const sub = document.getElementById('recInputSubCategory');
+  updateSubcategories(sub.selectedIndex > 0 ? sub.selectedIndex : 0);
+}
+function updateSubcategories(keepIndex){
+  const catIdx = document.getElementById('recInputCategory').value;
+  const sub = document.getElementById('recInputSubCategory');
+  if (catIdx === ''){ sub.innerHTML = `<option value="" disabled selected>${esc(t('firstCat'))}</option>`; return; }
+  sub.innerHTML = `<option value="" disabled>${esc(t('chooseSub'))}</option>` +
+    categoriesStructured[currentLang][catIdx].subs.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  sub.selectedIndex = typeof keepIndex === 'number' ? keepIndex : 0;
+}
 
-                html += `
-                    <div onclick="openNewsModal(${index})" class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer transition">
-                        <div class="w-16 h-16 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🌱</div>
-                        <div class="flex flex-col justify-between overflow-hidden">
-                            <div>
-                                <div class="flex items-center space-x-1">
-                                    <span class="text-[9px] bg-emerald-100 text-baytaq px-1.5 py-0.5 rounded font-bold">${item.tag}</span>
-                                    <span class="text-[9px] text-gray-400">• ${new Date(item.pubDate).toLocaleDateString()}</span>
-                                </div>
-                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-1">${title}</h3>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
+/* ================= Команда ================= */
+function renderTeam(){
+  const box = document.getElementById('teamList');
+  const list = activeTeamTab === 'all' ? teamMembers : teamMembers.filter(m => m.roleCategory === activeTeamTab);
+  if (!list.length){ box.innerHTML = `<div class="empty">${esc(t('teamEmpty'))}</div>`; return; }
+  box.innerHTML = list.map(m => {
+    const name = m.fio[currentLang];
+    const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('');
+    return `<div class="member">
+      <div class="avatar${m.isLeader ? ' lead' : ''}"><span>${esc(initials)}</span></div>
+      <div style="min-width:0"><h3>${esc(name)}</h3><p>${esc(m.title[currentLang])}</p><small>${esc(m.loc[currentLang])}</small></div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('teamTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  activeTeamTab = b.dataset.tab;
+  document.querySelectorAll('#teamTabs .tab').forEach(x => x.classList.toggle('on', x === b));
+  renderTeam();
+});
 
-        function filterByTag(tag) {
-            activeTagFilter = tag;
-            document.querySelectorAll('.tag-filter').forEach(b => {
-                b.className = "tag-filter bg-white text-gray-700 px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition";
-            });
-            document.getElementById(`tag-btn-${tag.replace('#', '')}`).className = "tag-filter bg-baytaq text-white px-2.5 py-1 rounded-lg font-bold whitespace-nowrap transition";
-            applyFilters();
-        }
+/* ================= Новости ================= */
+function parseTelegram(html){
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const out = [];
+  doc.querySelectorAll('.tgme_widget_message').forEach(wrap => {
+    const msg = wrap.querySelector('.tgme_widget_message_text');
+    if (!msg) return;
+    const clone = msg.cloneNode(true);
+    clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+    let fullText = clone.textContent.trim();
+    if (!fullText) return;
 
-        function applyFilters() {
-            const dateVal = document.getElementById('newsDateFilter').value;
-            filteredNewsData = rawNewsData.filter(item => {
-                let matchTag = (activeTagFilter === 'all' || item.tag.toLowerCase() === activeTagFilter.toLowerCase());
-                let matchDate = (!dateVal || item.pubDate.startsWith(dateVal));
-                return matchTag && matchDate;
-            });
-            renderArchiveList();
-        }
+    let pubDate = new Date().toISOString();
+    const dateMatch = fullText.match(/\[ДАТА:\s*(\d{4}-\d{2}-\d{2})\]/);
+    if (dateMatch){
+      pubDate = new Date(dateMatch[1]).toISOString();
+      fullText = fullText.replace(dateMatch[0], '').trim();
+    } else {
+      const dateEl = wrap.querySelector('.tgme_widget_message_date time');
+      if (dateEl && dateEl.getAttribute('datetime')) pubDate = dateEl.getAttribute('datetime');
+    }
 
-        function resetFilters() {
-            document.getElementById('newsDateFilter').value = '';
-            activeTagFilter = 'all';
-            filterByTag('all');
-        }
+    const tagMatch = fullText.match(/#(news|jkh|eco|announcement)\b/i);
+    const tag = tagMatch ? tagMatch[0].toLowerCase() : '#news';
 
-        function renderArchiveList() {
-            const container = document.getElementById('archiveContainer');
-            if (!filteredNewsData || filteredNewsData.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">${currentLang === 'ru' ? 'Новости не найдены' : 'Жаңалықтар табылмады'}</div>`;
-                return;
-            }
+    let image = null;
+    const photo = wrap.querySelector('.tgme_widget_message_photo_wrap');
+    if (photo){
+      const m = (photo.getAttribute('style') || '').match(/url\(['"]?(https:\/\/[^'")\s]+)['"]?\)/);
+      if (m) image = m[1];
+    }
+    const post = wrap.getAttribute('data-post') || '';
+    const url = /^[\w]+\/\d+$/.test(post) ? 'https://t.me/' + post : null;
 
-            let html = '';
-            filteredNewsData.forEach((item, index) => {
-                let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
-                let title = displayText.split('\n')[0] || displayText.slice(0, 80);
+    const parts = fullText.split('─── 🌿 ───');
+    const textKk = (parts[0] || fullText).trim();
+    const textRu = (parts[1] || parts[0] || fullText).trim();
+    out.push({ description:fullText, pubDate, tag, image, url, parsedText:{ kk:textKk, ru:textRu } });
+  });
+  out.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  return out;
+}
 
-                html += `
-                    <div onclick="openArchiveModalItem(${index})" class="bg-gray-50 rounded-xl p-3 border border-gray-200 shadow-sm flex space-x-3 hover:border-baytaq cursor-pointer transition">
-                        <div class="w-12 h-12 bg-emerald-100 rounded-lg flex-shrink-0 flex items-center justify-center text-xl">🌱</div>
-                        <div class="flex flex-col justify-between overflow-hidden">
-                            <div>
-                                <span class="text-[9px] bg-emerald-100 text-baytaq px-1.5 py-0.2 rounded font-bold">${item.tag}</span>
-                                <h3 class="font-bold text-xs text-gray-800 line-clamp-2 mt-0.5">${title}</h3>
-                            </div>
-                            <span class="text-[10px] text-emerald-700 font-semibold mt-1">📅 ${new Date(item.pubDate).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
+const apiBase = () => CONFIG.FORM_ENDPOINT.trim().replace(/\/+$/, '');
 
-        function openNewsModal(index) {
-            const item = rawNewsData[index];
-            if (!item) return;
-            currentNewsIndex = index;
-            document.getElementById('newsModalTag').innerText = item.tag;
-            document.getElementById('newsModalDate').innerText = new Date(item.pubDate).toLocaleDateString();
-            document.getElementById('newsModalBody').innerText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
-            toggleNewsModal(true);
-        }
+async function fetchTelegramNews(){
+  const cached = store.get('baytaq_cached_news');
+  if (cached){
+    try {
+      const data = JSON.parse(cached);
+      if (Array.isArray(data) && data.length){ tgNews = data; rebuildNews(); }
+    } catch(e){}
+  }
+  const sources = [];
+  if (apiBase()) sources.push(apiBase() + '/news');
+  sources.push(CONFIG.NEWS_PROXY + encodeURIComponent('https://t.me/s/' + CONFIG.TELEGRAM_CHANNEL));
+  for (const src of sources){
+    try {
+      const res = await fetch(src);
+      const data = await res.json();
+      const fresh = data && data.contents ? parseTelegram(data.contents) : [];
+      if (fresh.length){
+        tgNews = fresh;
+        store.set('baytaq_cached_news', JSON.stringify(fresh));
+        break;
+      }
+    } catch(err){}
+  }
+  tgDone = true;
+  rebuildNews();
+}
 
-        function openArchiveModalItem(index) {
-            const item = filteredNewsData[index];
-            if (!item) return;
-            currentNewsIndex = rawNewsData.indexOf(item);
-            document.getElementById('newsModalTag').innerText = item.tag;
-            document.getElementById('newsModalDate').innerText = new Date(item.pubDate).toLocaleDateString();
-            document.getElementById('newsModalBody').innerText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
-            toggleNewsModal(true);
-        }
+function rebuildNews(){
+  rawNewsData = [...adminNews, ...tgNews].sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  if (rawNewsData.length) newsState = 'ready';
+  else if (tgDone) newsState = 'failed';
+  applyFilters(); renderNews();
+}
 
-        function shareNewsViaWhatsApp() {
-            if (currentNewsIndex === null || !rawNewsData[currentNewsIndex]) return;
-            const item = rawNewsData[currentNewsIndex];
-            let displayText = (item.parsedText && item.parsedText[currentLang]) ? item.parsedText[currentLang] : item.description;
-            let title = displayText.split('\n')[0] || 'SQO BAYTAQ';
-            window.open(`https://wa.me/?text=` + encodeURIComponent(`📰 *${title}*\n\n${window.location.href}`), '_blank');
-        }
+function newsText(item){ return (item.parsedText && item.parsedText[currentLang]) || item.description || ''; }
+function newsTitle(item){
+  const line = newsText(item).split('\n').map(s => s.trim()).find(Boolean) || '';
+  const clean = line.replace(/#[\wа-яёәғқңөұүһі]+/gi, '').trim() || line;
+  return clean.length > 140 ? clean.slice(0, 137) + '…' : clean;
+}
+function thumbHtml(item){
+  return item.image
+    ? `<img src="${esc(item.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`
+    : '';
+}
+function rowHtml(item, attr, i){
+  return `<button class="row${newsAnimated ? '' : ' pop'}" style="animation-delay:${0.08 * i}s" ${attr}>
+    <span class="thumb">${thumbHtml(item) || '<svg class="i"><use href="#i-leaf"/></svg>'}</span>
+    <span class="row-body">
+      <span class="meta"><span class="tag">${esc(item.tag)}</span><span class="date">${esc(fmtDate(item.pubDate))}</span></span>
+      <h3>${esc(newsTitle(item))}</h3>
+    </span>
+  </button>`;
+}
+function channelEmpty(textKey){
+  return `<div class="empty"><span>${esc(t(textKey))}</span>
+    <a class="btn btn-soft" style="height:44px;font-size:14px" href="https://t.me/${CONFIG.TELEGRAM_CHANNEL}" target="_blank" rel="noopener"><svg class="i"><use href="#i-send"/></svg>${esc(t('openChannel'))}</a></div>`;
+}
 
-        function shareNewsNative() {
-            if (navigator.share) { navigator.share({ title: 'SQO BAYTAQ', url: window.location.href }).catch(() => {}); } else { shareNewsViaWhatsApp(); }
-        }
+function renderNews(){
+  const box = document.getElementById('newsContainer');
+  if (newsState === 'loading') return;
+  if (!rawNewsData.length){ box.innerHTML = channelEmpty('newsFailed'); return; }
+  const [first, ...rest] = rawNewsData.slice(0, 4);
+  let html = `<button class="feature${newsAnimated ? '' : ' pop'}" data-news="0">
+    ${thumbHtml(first)}<svg class="i leaf"><use href="#i-leaf"/></svg>
+    <span class="feature-body">
+      <span class="meta"><span class="tag">${esc(first.tag)}</span><span class="date">${esc(fmtDate(first.pubDate))}</span></span>
+      <h3>${esc(newsTitle(first))}</h3>
+    </span>
+  </button>`;
+  rest.forEach((item, i) => { html += rowHtml(item, `data-news="${i + 1}"`, i + 1); });
+  box.innerHTML = html;
+  newsAnimated = true;
+}
+document.getElementById('newsContainer').addEventListener('click', e => {
+  const b = e.target.closest('[data-news]'); if (b) showNews(rawNewsData[+b.dataset.news]);
+});
 
-        async function submitJoinForm(e) { 
-            e.preventDefault(); 
-            alert(currentLang === 'ru' ? 'Заявка отправлена!' : 'Өтініш жіберілді!'); 
-            toggleJoinModal(false); 
-        }
+function applyFilters(){
+  const dateVal = document.getElementById('newsDateFilter').value;
+  filteredNewsData = rawNewsData.filter(item =>
+    (activeTagFilter === 'all' || item.tag.toLowerCase() === activeTagFilter) &&
+    (!dateVal || String(item.pubDate).startsWith(dateVal)));
+  renderArchiveList();
+}
+function resetFilters(){
+  document.getElementById('newsDateFilter').value = '';
+  setTag('all');
+}
+function setTag(tag){
+  activeTagFilter = tag;
+  document.querySelectorAll('#tagTabs .tab').forEach(x => x.classList.toggle('on', x.dataset.tag === tag));
+  applyFilters();
+}
+document.getElementById('tagTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tag]'); if (b) setTag(b.dataset.tag);
+});
+function renderArchiveList(){
+  const box = document.getElementById('archiveContainer');
+  if (!rawNewsData.length){ box.innerHTML = newsState === 'failed' ? channelEmpty('newsFailed') : ''; return; }
+  if (!filteredNewsData.length){ box.innerHTML = `<div class="empty">${esc(t('newsNotFound'))}</div>`; return; }
+  const was = newsAnimated; newsAnimated = true;
+  box.innerHTML = filteredNewsData.map((item, i) => rowHtml(item, `data-arch="${i}"`, 0)).join('');
+  newsAnimated = was;
+}
+document.getElementById('archiveContainer').addEventListener('click', e => {
+  const b = e.target.closest('[data-arch]'); if (b) showNews(filteredNewsData[+b.dataset.arch]);
+});
 
-        async function submitRecForm(e) { 
-            e.preventDefault(); 
-            alert(currentLang === 'ru' ? 'Обращение принято!' : 'Өтініш қабылданды!'); 
-            toggleRecModal(false); 
-        }
+function showNews(item){
+  if (!item) return;
+  currentNewsIndex = rawNewsData.indexOf(item);
+  document.getElementById('newsModalTag').textContent = item.tag;
+  document.getElementById('newsModalDate').textContent = fmtDate(item.pubDate);
+  document.getElementById('newsModalBody').textContent = newsText(item);
+  const img = document.getElementById('newsModalImg');
+  if (item.image){ img.src = item.image; img.hidden = false; img.onerror = () => { img.hidden = true; }; }
+  else { img.hidden = true; img.removeAttribute('src'); }
+  document.querySelector('#newsModal .panel').scrollTop = 0;
+  openSheet('newsModal');
+}
+function currentShare(){
+  const item = rawNewsData[currentNewsIndex];
+  if (!item) return null;
+  return { title: newsTitle(item) || 'SQO BAYTAQ', url: item.url || window.location.href };
+}
+function shareNewsViaWhatsApp(){
+  const s = currentShare(); if (!s) return;
+  window.open('https://wa.me/?text=' + encodeURIComponent(`*${s.title}*\n\n${s.url}`), '_blank', 'noopener');
+}
+function shareNewsNative(){
+  const s = currentShare(); if (!s) return;
+  if (navigator.share) navigator.share({ title:s.title, url:s.url }).catch(() => {});
+  else shareNewsViaWhatsApp();
+}
 
-        renderSelects();
-        renderTeam();
-        fetchTelegramNews();
-    </script>
+/* ================= Админ ================= */
+const session = {
+  get(){ try { return sessionStorage.getItem('baytaq_admin') === '1'; } catch(e){ return false; } },
+  set(v){ try { v ? sessionStorage.setItem('baytaq_admin','1') : sessionStorage.removeItem('baytaq_admin'); } catch(e){} }
+};
+function setAdmin(v){
+  isAdmin = v; session.set(v);
+  document.getElementById('adminBtn').classList.toggle('on', v);
+}
+function openAdmin(){
+  if (!isAdmin){ document.getElementById('loginErr').textContent = ''; openSheet('loginModal'); return; }
+  if (!editingId && !document.getElementById('anDate').value) resetAdminForm();
+  renderAdminList(); openSheet('adminModal');
+}
+function submitLogin(e){
+  e.preventDefault();
+  const ok = val('adminLogin').toLowerCase() === CONFIG.ADMIN_LOGIN.toLowerCase()
+          && document.getElementById('adminPass').value === CONFIG.ADMIN_PASSWORD;
+  if (!ok){ document.getElementById('loginErr').textContent = t('loginWrong'); return; }
+  e.target.reset(); setAdmin(true); closeSheet('loginModal'); openAdmin();
+}
+function adminLogout(){ setAdmin(false); resetAdminForm(); closeSheet('adminModal'); showToast(t('loggedOut')); }
+
+function loadAdminNews(){
+  try { const d = JSON.parse(store.get('baytaq_admin_news') || '[]'); return Array.isArray(d) ? d.filter(x => x && x.id && x.f) : []; }
+  catch(e){ return []; }
+}
+const pad2 = n => String(n).padStart(2, '0');
+function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function timeStr(){ const d = new Date(); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()); }
+function buildAdminItem(f, prev){
+  const join = (a, b) => [a, b].filter(Boolean).join('\n\n');
+  const kk = join(f.titleKk || f.titleRu, f.textKk || f.textRu);
+  const ru = join(f.titleRu || f.titleKk, f.textRu || f.textKk);
+  const time = prev && String(prev.pubDate).slice(0, 10) === f.date ? String(prev.pubDate).slice(11) : timeStr();
+  return { id: prev ? prev.id : 'a' + Date.now(), local: true, description: kk, pubDate: f.date + 'T' + time,
+           tag: f.tag, image: f.image || null, url: null, parsedText: { kk, ru }, f };
+}
+function syncAdminForm(){
+  document.getElementById('anSubmit').textContent = t(editingId ? 'saveEdit' : 'saveNews');
+  document.getElementById('anCancel').hidden = !editingId;
+}
+function showPhoto(){
+  const img = document.getElementById('anPhotoPrev');
+  if (adminImage){ img.src = adminImage; img.hidden = false; } else { img.hidden = true; img.removeAttribute('src'); }
+  document.getElementById('anPhotoDel').hidden = !adminImage;
+}
+function clearPhoto(){ adminImage = null; document.getElementById('anPhoto').value = ''; showPhoto(); }
+function pickPhoto(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => {
+    const k = Math.min(1, 1000 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    adminImage = c.toDataURL('image/jpeg', .8);
+    URL.revokeObjectURL(url); showPhoto();
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); input.value = ''; showToast(t('photoFail'), 'warn'); };
+  img.src = url;
+}
+function resetAdminForm(){
+  document.getElementById('adminForm').reset();
+  document.getElementById('anDate').value = todayStr();
+  document.getElementById('adminErr').textContent = '';
+  editingId = null; adminImage = null; showPhoto(); syncAdminForm();
+}
+function submitAdminNews(e){
+  e.preventDefault();
+  const err = document.getElementById('adminErr');
+  const f = { tag: val('anTag'), date: val('anDate'), titleKk: val('anTitleKk'), textKk: val('anTextKk'),
+              titleRu: val('anTitleRu'), textRu: val('anTextRu'), image: adminImage };
+  if (!f.titleKk && !f.titleRu){ err.textContent = t('needTitle'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f.date)){ err.textContent = t('needDate'); return; }
+  const prev = adminNews.find(x => x.id === editingId);
+  const item = buildAdminItem(f, prev);
+  const next = prev ? adminNews.map(x => x.id === prev.id ? item : x) : [item, ...adminNews];
+  if (!store.set('baytaq_admin_news', JSON.stringify(next))){ err.textContent = t('storageFull'); return; }
+  adminNews = next;
+  resetAdminForm(); rebuildNews(); renderAdminList(); showToast(t('newsSaved'));
+}
+function renderAdminList(){
+  const box = document.getElementById('adminList');
+  if (!adminNews.length){ box.innerHTML = `<div class="empty">${esc(t('adminEmpty'))}</div>`; return; }
+  const sorted = [...adminNews].sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  box.innerHTML = sorted.map(item => `<div class="arow">
+    <span class="thumb">${thumbHtml(item) || '<svg class="i"><use href="#i-leaf"/></svg>'}</span>
+    <span class="grow"><b>${esc(newsTitle(item))}</b><small>${esc(item.tag)}, ${esc(fmtDate(item.pubDate))}</small></span>
+    <button class="ibtn" data-edit="${esc(item.id)}" aria-label="${esc(t('editLbl'))}"><svg class="i"><use href="#i-edit"/></svg></button>
+    <button class="ibtn del" data-del="${esc(item.id)}" aria-label="${esc(t('delLbl'))}"><svg class="i"><use href="#i-trash"/></svg></button>
+  </div>`).join('');
+}
+function disarmDelete(){ if (document.querySelector('#adminList .armed')) renderAdminList(); }
+document.getElementById('adminList').addEventListener('click', e => {
+  const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+  if (ed){
+    const item = adminNews.find(x => x.id === ed.dataset.edit); if (!item) return;
+    editingId = item.id; adminImage = item.f.image || null;
+    document.getElementById('anTag').value = item.f.tag; document.getElementById('anDate').value = item.f.date;
+    document.getElementById('anTitleKk').value = item.f.titleKk; document.getElementById('anTextKk').value = item.f.textKk;
+    document.getElementById('anTitleRu').value = item.f.titleRu; document.getElementById('anTextRu').value = item.f.textRu;
+    document.getElementById('adminErr').textContent = '';
+    showPhoto(); syncAdminForm(); disarmDelete();
+    document.querySelector('#adminModal .panel').scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (del){
+    if (!del.classList.contains('armed')){            // первое нажатие — переспросить
+      const id = del.dataset.del; disarmDelete();
+      const btn = document.querySelector(`#adminList [data-del="${id}"]`);
+      btn.classList.add('armed'); btn.textContent = t('confirmDel'); return;
+    }
+    const next = adminNews.filter(x => x.id !== del.dataset.del);
+    if (!store.set('baytaq_admin_news', JSON.stringify(next))) return;
+    if (editingId === del.dataset.del) resetAdminForm();
+    adminNews = next; rebuildNews(); renderAdminList(); showToast(t('newsDeleted'));
+  } else disarmDelete();
+});
+
+/* ================= Отправка форм ================= */
+function waLink(text){ return 'https://wa.me/' + CONFIG.WHATSAPP + (text ? '?text=' + encodeURIComponent(text) : ''); }
+function waMessage(kind, d){
+  const line = (k, v) => v ? t(k) + ': ' + v : '';
+  const who = [line('waFio', d.fio), line('waPhone', d.phone), line('waIin', d.iin), line('waRegion', d.region)];
+  if (kind === 'join') return [t('waJoinHead'), '', ...who].filter((r, i) => r || i === 1).join('\n');
+  const place = d.lat != null ? 'https://maps.google.com/?q=' + d.lat.toFixed(5) + ',' + d.lng.toFixed(5) : '';
+  const what = [line('waCat', [d.category, d.subcategory].filter(Boolean).join(' / ')), line('waText', d.text), line('waPlace', place)];
+  return [t('waRecHead'), '', ...who.filter(Boolean), '', ...what.filter(Boolean)].join('\n');
+}
+function useWhatsAppRoute(){
+  document.querySelectorAll('#joinForm [type="submit"], #recForm [type="submit"]').forEach(b => { b.dataset.i18n = 'sendWa'; b.textContent = t('sendWa'); });
+}
+// Возвращает 'sent' (ушло на сервер), 'whatsapp' (открыт WhatsApp с готовым текстом) или false.
+async function sendForm(kind, payload, form){
+  if (!apiBase() || endpointFailed){
+    if (!CONFIG.WHATSAPP){ showToast(t(apiBase() ? 'sendError' : 'demoNotSent'), apiBase() ? 'error' : 'warn'); return false; }
+    const url = waLink(waMessage(kind, payload));
+    if (!window.open(url, '_blank', 'noopener')) window.location.href = url;
+    return 'whatsapp';
+  }
+  const btn = form.querySelector('[type="submit"]');
+  btn.disabled = true;
+  try {
+    const res = await fetch(apiBase() + '/', {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ kind, lang: currentLang, ...payload })
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data || !data.ok) throw new Error(res.status);
+    return 'sent';
+  } catch(e){
+    if (CONFIG.WHATSAPP){ useWhatsAppRoute(); endpointFailed = true; showToast(t('sendErrorWa'), 'warn'); }
+    else showToast(t('sendError'), 'error');
+    return false;
+  }
+  finally { btn.disabled = false; }
+}
+const val = id => document.getElementById(id).value.trim();
+
+async function submitJoinForm(e){
+  e.preventDefault();
+  const how = await sendForm('join', { fio:val('inputFio'), phone:val('inputPhone'), iin:val('inputIin'), region:val('inputRegion') }, e.target);
+  if (!how) return;
+  closeSheet('joinModal');
+  if (how === 'whatsapp'){ showToast(t('waOpened')); return; }   // форму не очищаем: вдруг WhatsApp не открылся
+  e.target.reset(); renderSelects(); showToast(t('joinSent'));
+}
+async function submitRecForm(e){
+  e.preventDefault();
+  const cat = document.getElementById('recInputCategory');
+  const how = await sendForm('reception', {
+    fio:val('recInputFio'), phone:val('recInputPhone'), iin:val('recInputIin'), region:val('recInputRegion'),
+    category: cat.options[cat.selectedIndex] ? cat.options[cat.selectedIndex].text : '',
+    subcategory: val('recInputSubCategory'), text: val('recInputText'),
+    lat: pointChosen ? selectedLat : null, lng: pointChosen ? selectedLng : null
+  }, e.target);
+  if (!how) return;
+  closeSheet('recModal');
+  if (how === 'whatsapp'){ showToast(t('waOpened')); return; }
+  e.target.reset(); renderSelects(); pointChosen = false; showToast(t('recSent'));
+}
+
+async function copyIban(){
+  const iban = document.getElementById('ibanValue').textContent.trim();
+  try { await navigator.clipboard.writeText(iban); showToast(t('copied')); }
+  catch(e){ showToast(t('copyFail'), 'warn'); }
+}
+
+/* ================= Навигация ================= */
+const dock = document.getElementById('dock');
+function setDock(id){ dock.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('on', b.dataset.nav === id)); }
+dock.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.open){ openSheet(b.dataset.open); return; }
+  if (b.dataset.nav === 'home') window.scrollTo({ top:0, behavior:'smooth' });
+  else {
+    const el = document.getElementById(b.dataset.nav);
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 74, behavior:'smooth' });
+  }
+  setDock(b.dataset.nav);
+});
+if ('IntersectionObserver' in window){
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) setDock(en.target.id); });
+  }, { rootMargin:'-40% 0px -55% 0px' });
+  ['home','newsSection','teamSection'].forEach(id => spy.observe(document.getElementById(id)));
+
+  const rev = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting){ en.target.classList.add('in'); rev.unobserve(en.target); } });
+  }, { threshold:.08 });
+  document.querySelectorAll('.reveal').forEach(el => rev.observe(el));
+} else {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+}
+
+/* ================= Запуск ================= */
+if (!apiBase() && CONFIG.WHATSAPP) useWhatsAppRoute();
+document.querySelectorAll('[data-wa]').forEach(a => { a.href = waLink(''); a.hidden = !CONFIG.WHATSAPP; });
+const savedTheme = store.get('baytaq_theme');
+applyTheme(savedTheme || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+const savedLang = store.get('baytaq_lang');
+if (savedLang === 'ru' || savedLang === 'kk') currentLang = savedLang;
+adminNews = loadAdminNews();
+if (session.get()) setAdmin(true);
+applyLanguage();
+rebuildNews();
+fetchTelegramNews();
+</script>
 </body>
 </html>
